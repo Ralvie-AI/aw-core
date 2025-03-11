@@ -523,7 +523,7 @@ def ensure_default_settings():
     default_settings = {
         "time_zone": formatted_tz,
         "timeformat": 12,
-        "schedule": False,
+        "schedule": True,
         "launch": True,
         "idle_time": True,
     }
