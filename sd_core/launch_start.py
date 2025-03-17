@@ -1,6 +1,12 @@
 import os
 import subprocess
 import sys
+import logging
+
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 if sys.platform == "win32":
     import winreg
@@ -56,18 +62,27 @@ def check_startup_status():
     if sys.platform == "darwin":
         return get_login_items()
     elif sys.platform == "win32":
-        key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
-        try:
-            with winreg.OpenKey(
-                    key=winreg.HKEY_CURRENT_USER,
-                    sub_key=key_path,
-                    reserved=0,
-                    access=winreg.KEY_READ,
-            ) as key:
-                value, _ = winreg.QueryValueEx(key, app_name)
-                return True
-        except FileNotFoundError:
+
+        from sd_qt.sd_desktop.const import DEVELOPMENT_MODE
+        from sd_qt.sd_desktop.util import get_app_name_exe
+
+        if DEVELOPMENT_MODE != 0:
+            app_name = get_app_name_exe()
+            key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
+            try:
+                with winreg.OpenKey(
+                        key=winreg.HKEY_CURRENT_USER,
+                        sub_key=key_path,
+                        reserved=0,
+                        access=winreg.KEY_READ,
+                ) as key:
+                    value, _ = winreg.QueryValueEx(key, app_name)
+                    return True
+            except FileNotFoundError:
+                return False
+        else:
             return False
+        
     return False
 
 
@@ -75,23 +90,37 @@ def set_autostart_registry(autostart: bool = True) -> bool:
     """
     Create, update, or delete the Windows autostart registry key.
     """
+
     if sys.platform == "win32":
-        key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
-        try:
-            with winreg.OpenKey(
-                    key=winreg.HKEY_CURRENT_USER,
-                    sub_key=key_path,
-                    reserved=0,
-                    access=winreg.KEY_ALL_ACCESS,
-            ) as key:
-                if autostart:
-                    winreg.SetValueEx(key, app_name, 0,
-                                      winreg.REG_SZ, app_path)
-                else:
-                    winreg.DeleteValue(key, app_name)
-        except OSError:
-            return False
-        return True
+
+        from sd_qt.sd_desktop.const import DEVELOPMENT_MODE
+        from sd_qt.sd_desktop.util import get_app_name_exe
+
+        if DEVELOPMENT_MODE != 0:
+
+            app_path = get_app_name_exe()
+            key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
+            logger.info(f"set_autostart_registry app_name {app_name}")
+            logger.info(f"set_autostart_registry app_path {app_path}")
+            try:
+                with winreg.OpenKey(
+                        key=winreg.HKEY_CURRENT_USER,
+                        sub_key=key_path,
+                        reserved=0,
+                        access=winreg.KEY_ALL_ACCESS,
+                ) as key:
+                    if autostart:
+                        winreg.SetValueEx(key, app_name, 0,
+                                        winreg.REG_SZ, app_path)
+                    else:
+                        winreg.DeleteValue(key, app_name)
+            except OSError:
+                return False
+            return True
+        
+        else:
+            return False    
+        
     return False
 
 
