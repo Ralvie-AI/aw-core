@@ -54,6 +54,12 @@ def get_login_items():
         return app_name in items
     return False
 
+def get_window_version():
+    version = sys.getwindowsversion()
+    if version.major == 10 and version.build >= 22000:
+        return 11
+    else:
+        return 10
 
 def check_startup_status():
     """
@@ -63,23 +69,27 @@ def check_startup_status():
         return get_login_items()
     elif sys.platform == "win32":
 
-        from sd_qt.sd_desktop.const import DEVELOPMENT_MODE
-        from sd_qt.sd_desktop.util import get_app_name_exe
+        from sd_qt.sd_desktop.const import DEVELOPMENT_MODE    
 
         if DEVELOPMENT_MODE != 0:
-            app_name = get_app_name_exe()
-            key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
-            try:
-                with winreg.OpenKey(
-                        key=winreg.HKEY_CURRENT_USER,
-                        sub_key=key_path,
-                        reserved=0,
-                        access=winreg.KEY_READ,
-                ) as key:
-                    value, _ = winreg.QueryValueEx(key, app_name)
-                    return True
-            except FileNotFoundError:
+            if get_window_version() == 10:
+
+                key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
+
+                try:
+                    with winreg.OpenKey(
+                            key=winreg.HKEY_CURRENT_USER,
+                            sub_key=key_path,
+                            reserved=0,
+                            access=winreg.KEY_READ,
+                    ) as key:
+                        value, _ = winreg.QueryValueEx(key, app_name)
+                        return True
+                except FileNotFoundError:
+                    return False
+            else:
                 return False
+            
         else:
             return False
         
@@ -94,30 +104,34 @@ def set_autostart_registry(autostart: bool = True) -> bool:
     if sys.platform == "win32":
 
         from sd_qt.sd_desktop.const import DEVELOPMENT_MODE
-        from sd_qt.sd_desktop.util import get_app_name_exe
+        from sd_qt.sd_desktop.util import get_app_name_exe        
 
         if DEVELOPMENT_MODE != 0:
+            
+            if get_window_version() == 10:
 
-            app_path = get_app_name_exe()
-            key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
-            logger.info(f"set_autostart_registry app_name {app_name}")
-            logger.info(f"set_autostart_registry app_path {app_path}")
-            try:
-                with winreg.OpenKey(
-                        key=winreg.HKEY_CURRENT_USER,
-                        sub_key=key_path,
-                        reserved=0,
-                        access=winreg.KEY_ALL_ACCESS,
-                ) as key:
-                    if autostart:
-                        winreg.SetValueEx(key, app_name, 0,
-                                        winreg.REG_SZ, app_path)
-                    else:
-                        winreg.DeleteValue(key, app_name)
-            except OSError:
-                return False
-            return True
-        
+                app_path = get_app_name_exe()
+                key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
+                logger.info(f"set_autostart_registry set_autostart_registry app_path {app_path}")
+                
+                try:
+                    with winreg.OpenKey(
+                            key=winreg.HKEY_CURRENT_USER,
+                            sub_key=key_path,
+                            reserved=0,
+                            access=winreg.KEY_ALL_ACCESS,
+                    ) as key:
+                        if autostart:
+                            winreg.SetValueEx(key, app_name, 0,
+                                            winreg.REG_SZ, app_path)
+                        else:
+                            winreg.DeleteValue(key, app_name)
+                except OSError:
+                    return False
+                return True
+            else:
+                return False 
+                    
         else:
             return False    
         
