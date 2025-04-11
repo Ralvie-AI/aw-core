@@ -128,7 +128,6 @@ def auto_migrate(db_path: str, passphrase: str):
         db.close()
 
 
-
 def chunks(ls, n):
     """
      Yield successive n - sized chunks from a list. This is useful for debugging and to ensure that chunks don't get stuck in memory at the cost of memory usage.
@@ -156,6 +155,7 @@ def dt_plus_duration(dt, duration):
         (peewee.fn.julianday(dt) - 2440587.5) * 86400.0 + duration,
         "unixepoch",
     )
+
 
 
 class BaseModel(Model):
@@ -532,7 +532,7 @@ def ensure_default_settings():
     default_settings = {
         "time_zone": formatted_tz,
         "timeformat": 12,
-        "schedule": False,
+        "schedule": True,
         "launch": True,
         "idle_time": True,
     }

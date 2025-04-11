@@ -268,7 +268,8 @@ def start_all_module():
     cached_settings = retrieve(settings_cache_key)
 
     for module in modules:
-        if not cached_settings.get('idle_time') and module == "sd-watcher-afk":
+        logger.info("Testing idle_time: {}, watcher_name: {}".format(cached_settings.get('idle_time'), module["watcher_name"]))
+        if not cached_settings.get('idle_time') and module["watcher_name"] == "sd-watcher-afk":
             continue
         manager.start(module["watcher_name"])
 
