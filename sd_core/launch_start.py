@@ -107,30 +107,26 @@ def set_autostart_registry(autostart: bool = True) -> bool:
         from sd_qt.sd_desktop.util import get_app_name_exe        
 
         if DEVELOPMENT_MODE != 0:
+       
+            app_path = get_app_name_exe()
+            key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
+            logger.info(f"set_autostart_registry set_autostart_registry app_path {app_path}")
             
-            if get_window_version() == 10:
-
-                app_path = get_app_name_exe()
-                key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
-                logger.info(f"set_autostart_registry set_autostart_registry app_path {app_path}")
-                
-                try:
-                    with winreg.OpenKey(
-                            key=winreg.HKEY_CURRENT_USER,
-                            sub_key=key_path,
-                            reserved=0,
-                            access=winreg.KEY_ALL_ACCESS,
-                    ) as key:
-                        if autostart:
-                            winreg.SetValueEx(key, app_name, 0,
-                                            winreg.REG_SZ, app_path)
-                        else:
-                            winreg.DeleteValue(key, app_name)
-                except OSError:
-                    return False
-                return True
-            else:
-                return False 
+            try:
+                with winreg.OpenKey(
+                        key=winreg.HKEY_CURRENT_USER,
+                        sub_key=key_path,
+                        reserved=0,
+                        access=winreg.KEY_ALL_ACCESS,
+                ) as key:
+                    if autostart:
+                        winreg.SetValueEx(key, app_name, 0,
+                                        winreg.REG_SZ, app_path)
+                    else:
+                        winreg.DeleteValue(key, app_name)
+            except OSError:
+                return False
+            return True      
                     
         else:
             return False    
