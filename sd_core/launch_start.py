@@ -17,7 +17,7 @@ if sys.platform == "win32":
     _module_dir = os.path.dirname(os.path.dirname(
         os.path.dirname(os.path.realpath(__file__))))
     os.chdir(_module_dir)
-    app_path = os.path.join(_module_dir, 'sd-qt.exe')
+    app_path = os.path.join(_module_dir, 'sd-main.exe')
     app_name = "Sundial"
 elif sys.platform == "darwin":
     app_path = "/Applications/Sundial.app"
