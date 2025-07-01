@@ -35,7 +35,7 @@ def qt(ctx):
      @return The exit code of
     """
     return subprocess.call(
-        ["sd-qt"] + (["--testing"] if ctx.parent.params["testing"] else [])
+        ["sd-main"] + (["--testing"] if ctx.parent.params["testing"] else [])
     )
 
 

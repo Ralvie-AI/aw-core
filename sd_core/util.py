@@ -9,7 +9,7 @@ import logging
 from cryptography.fernet import Fernet
 import keyring
 import pam
-from sd_qt.manager import Manager
+from sd_main.manager import Manager
 from sd_core.db_cache import retrieve
 import requests
 manager = Manager()

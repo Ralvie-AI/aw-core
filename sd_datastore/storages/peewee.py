@@ -21,7 +21,7 @@ from playhouse.shortcuts import model_to_dict
 from sd_core.cache import cache_user_credentials
 from sd_core import db_cache
 from sd_core.launch_start import set_autostart_registry, launch_app, check_startup_status
-from sd_qt.manager import Manager
+from sd_main.manager import Manager
 import time
 if sys.platform == "win32":
     _module_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
