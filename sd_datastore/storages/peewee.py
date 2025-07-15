@@ -982,7 +982,7 @@ class PeeweeStorage(AbstractStorage):
             FROM
                 eventmodel
             WHERE
-                AND server_sync_status = 0
+                server_sync_status = 0
                 AND JSON_EXTRACT(datastr, '$.app') NOT LIKE '%LockApp%'
                 AND JSON_EXTRACT(datastr, '$.app') NOT LIKE '%loginwindow%'
                 AND (
