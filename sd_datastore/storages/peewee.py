@@ -982,11 +982,14 @@ class PeeweeStorage(AbstractStorage):
             FROM
                 eventmodel
             WHERE
-                duration > 30
-                AND server_sync_status = 0
+                server_sync_status = 0
                 AND JSON_EXTRACT(datastr, '$.app') NOT LIKE '%LockApp%'
                 AND JSON_EXTRACT(datastr, '$.app') NOT LIKE '%loginwindow%'
-                AND IFNULL(JSON_EXTRACT(datastr, '$.status'), '') NOT LIKE '%not-afk%'
+                AND (
+                (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.status')), '') != 'not-afk' AND duration >= 300)
+                OR
+                (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.app')), '') != 'afk' AND duration >= 30)
+                )
             ORDER BY
                 timestamp ASC;
         """
