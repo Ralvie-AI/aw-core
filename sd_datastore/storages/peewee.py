@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import sys
+import platform
 from datetime import datetime, timedelta, timezone
 from typing import (
     Any,
@@ -944,6 +945,7 @@ class PeeweeStorage(AbstractStorage):
 
         # Fetch the results
         rows = result.fetchall()
+        # logger.info(f"rows {rows}")
 
         # Extract the formatted events from the first row
         formatted_events = json.loads(rows[0][0])
@@ -961,6 +963,9 @@ class PeeweeStorage(AbstractStorage):
         @return A list of events in chronological order of start
         """
 
+        current_platform = platform.system() or "Windows"
+        not_afk_duration = 300 if current_platform == "Windows" else 0
+        
         # Define the raw SQL query with formatting
         raw_query = f"""
             SELECT
@@ -986,7 +991,7 @@ class PeeweeStorage(AbstractStorage):
                 AND JSON_EXTRACT(datastr, '$.app') NOT LIKE '%LockApp%'
                 AND JSON_EXTRACT(datastr, '$.app') NOT LIKE '%loginwindow%'
                 AND (
-                (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.status')), '') != 'not-afk' AND duration >= 300)
+                (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.status')), '') != 'not-afk' AND duration > {not_afk_duration})
                 OR
                 (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.app')), '') != 'afk' AND duration >= 30)
                 )
