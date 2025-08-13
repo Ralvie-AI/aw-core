@@ -986,7 +986,7 @@ class PeeweeStorage(AbstractStorage):
                 AND JSON_EXTRACT(datastr, '$.app') NOT LIKE '%LockApp%'
                 AND JSON_EXTRACT(datastr, '$.app') NOT LIKE '%loginwindow%'
                 AND (
-                (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.status')), '') != 'not-afk' AND duration >= 300)
+                (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.status')), '') = 'afk' AND duration > 0)
                 OR
                 (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.app')), '') != 'afk' AND duration >= 30)
                 )
