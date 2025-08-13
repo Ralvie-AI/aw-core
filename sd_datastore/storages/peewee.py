@@ -963,8 +963,8 @@ class PeeweeStorage(AbstractStorage):
         @return A list of events in chronological order of start
         """
 
-        current_platform = platform.system() or "Windows"
-        not_afk_duration = 300 if current_platform == "Windows" else 0
+        # current_platform = platform.system() or "Windows"
+        # not_afk_duration = 300 if current_platform == "Windows" else 0
         
         # Define the raw SQL query with formatting
         raw_query = f"""
@@ -991,7 +991,7 @@ class PeeweeStorage(AbstractStorage):
                 AND JSON_EXTRACT(datastr, '$.app') NOT LIKE '%LockApp%'
                 AND JSON_EXTRACT(datastr, '$.app') NOT LIKE '%loginwindow%'
                 AND (
-                (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.status')), '') = 'afk' AND duration > {not_afk_duration})
+                (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.status')), '') = 'afk' AND duration > 0)
                 OR
                 (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.app')), '') != 'afk' AND duration >= 30)
                 )
