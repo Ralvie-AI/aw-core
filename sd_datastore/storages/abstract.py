@@ -315,6 +315,10 @@ class AbstractStorage(metaclass=ABCMeta):
     @abstractmethod
     def update_server_sync_status(self, list_of_ids, new_status):
         raise NotImplementedError
+    
+    @abstractmethod
+    def update_server_sync_status_with_retry(self, list_of_ids, new_status):
+        raise NotImplementedError    
 
     @abstractmethod
     def get_last_event_by_app_title_pulsetime(self, app, title):

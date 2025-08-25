@@ -879,6 +879,36 @@ class PeeweeStorage(AbstractStorage):
 
     def update_server_sync_status(self, list_of_ids, new_status):
         EventModel.update(server_sync_status=new_status).where(EventModel.id.in_(list_of_ids)).execute()
+    
+    def update_server_sync_status_with_retry(self, list_of_ids, new_status):
+
+        def update_with_retry(id, status, retries=5, delay=0.2):
+            for attempt in range(retries):
+                try:
+                    rows_updated = (
+                            EventModel
+                            .update(server_sync_status=status)
+                            .where(EventModel.id == id)
+                            .execute()
+                        ) 
+                    if rows_updated > 0:
+                        break
+
+                    time.sleep(delay)
+                                                
+                except Exception as e:
+                    if "locked" in str(e).lower():
+                        logger.info(f"[DB] Locked, retry {attempt+1}/{retries}...")
+                        time.sleep(delay)                           
+        
+        for event_id in list_of_ids:
+            update_with_retry(event_id, new_status)
+           
+        for event_id in list_of_ids:
+            event = EventModel.get(EventModel.id == event_id)
+            logger.info(f"Check again for event id {event_id} server_sync_status {event.server_sync_status}")
+            if event.server_sync_status == 0:
+                update_with_retry(event_id, new_status)        
 
     def _get_event(self, bucket_id, event_id) -> Optional[EventModel]:
         """
