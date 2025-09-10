@@ -1142,28 +1142,16 @@ class PeeweeStorage(AbstractStorage):
                 e = self._get_last_event_by_app_url(event.application_name, event.url)
             else:
                 e = self._get_last_event_by_app_title(event.application_name, event.title)
+                
             if e:
-                # e.timestamp = event.timestamp
-                e.duration = event['duration'].total_seconds()
-                # e.datastr = json.dumps(event.data)
-                e.server_sync_status = 0
-                e.save()
-                event.id = e.id
-
-                # test status
-                # if e.server_sync_status != 1:
-                #     # e.timestamp = event.timestamp
-                #     e.duration = event['duration'].total_seconds()
-                #     # e.datastr = json.dumps(event.data)
-                #     e.server_sync_status = 0
-                #     e.save()
-                #     event.id = e.id
-                # else:
-                #     # event_data = self.insert_one(bucket_id, event)
-                #     logger.info(f"replace_last event e.server_sync_status => {e.server_sync_status} => event.id = > {event.id}")
-                #     # logger.info(f"replace_last event_data e.server_sync_status => {event_data.server_sync_status} => event_data.id = > {event_data.id}")
-                #     logger.info(f"replace_last  event => {event.__dict__}")
-                #     return 1
+                if e.server_sync_status != 1:
+                    e.duration = event['duration'].total_seconds()
+                    e.server_sync_status = 0
+                    e.save()
+                    event.id = e.id
+                else:
+                    logger.info(f"replace_last event e.server_sync_status => {e.server_sync_status} => event.id = > {event.id}")
+                    return 1
                 
         except Exception as ef:
             logger.error(f"replace_event error: {ef}")
