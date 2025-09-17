@@ -881,6 +881,11 @@ class PeeweeStorage(AbstractStorage):
     def update_server_sync_status(self, list_of_ids, new_status):
         EventModel.update(server_sync_status=new_status).where(EventModel.id.in_(list_of_ids)).execute()
 
+        #logger for server_sync_status
+        updated_events = EventModel.select().where(EventModel.id.in_(list_of_ids))
+        for ev in updated_events:
+            logger.info(f"Event ID {ev.id} -> server_sync_status = {ev.server_sync_status}")
+
     def _get_event(self, bucket_id, event_id) -> Optional[EventModel]:
         """
          Get an event from the database. This is used to find events that need to be sent to Peewee in order to process them
@@ -1117,13 +1122,23 @@ class PeeweeStorage(AbstractStorage):
                 e = self._get_last_event_by_app_url(event.application_name, event.url)
             else:
                 e = self._get_last_event_by_app_title(event.application_name, event.title)
+            # if e:
+            #     # e.timestamp = event.timestamp
+            #     e.duration = event['duration'].total_seconds()
+            #     # e.datastr = json.dumps(event.data)
+            #     e.server_sync_status = 0
+            #     e.save()
+            #     event.id = e.id
             if e:
-                # e.timestamp = event.timestamp
-                e.duration = event['duration'].total_seconds()
-                # e.datastr = json.dumps(event.data)
-                e.server_sync_status = 0
-                e.save()
-                event.id = e.id
+                if e.server_sync_status != 1:
+                    e.duration = event['duration'].total_seconds()
+                    e.server_sync_status = 0
+                    e.save()
+                    event.id = e.id
+                else:
+                    logger.info(f"replace_last event e.server_sync_status => {e.server_sync_status} => event.id = > {event.id}")
+                    return 1
+                
         except Exception as ef:
             logger.error(f"replace_event error: {ef}")
             logger.error(f"last_event error event: {e}")
