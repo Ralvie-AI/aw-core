@@ -1394,20 +1394,24 @@ class PeeweeStorage(AbstractStorage):
         Handles cases where the value might not be a valid JSON string.
         """
         all_settings = {}
-        for setting in SettingsModel.select():
-            try:
-                if setting.code != "profilePic":
-                    # Attempt to deserialize each value from a JSON string
-                    all_settings[setting.code] = json.loads(
-                        setting.value) if setting.value else None
-            except json.JSONDecodeError as e:
-                # Log the error and skip this setting or set a default value
-                logger.error(
-                    f"Error decoding JSON for setting '{setting.code}': {e}")
-                # Or set a default value if appropriate
-                all_settings[setting.code] = None
-            db_cache.update(settings_cache_key,all_settings)
-        return all_settings
+        try:
+            for setting in SettingsModel.select():
+                try:
+                    if setting.code != "profilePic":
+                        # Attempt to deserialize each value from a JSON string
+                        all_settings[setting.code] = json.loads(
+                            setting.value) if setting.value else None
+                except json.JSONDecodeError as e:
+                    # Log the error and skip this setting or set a default value
+                    logger.error(
+                        f"Error decoding JSON for setting '{setting.code}': {e}")
+                    # Or set a default value if appropriate
+                    all_settings[setting.code] = None
+                db_cache.update(settings_cache_key,all_settings)
+            return all_settings
+        except AttributeError as e:
+            logger.info(f"AttributeError: {e}")
+            return all_settings
 
     def update_setting(code, new_value_dict):
         """
