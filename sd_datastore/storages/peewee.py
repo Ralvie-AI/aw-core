@@ -344,7 +344,6 @@ class EventModel(BaseModel):
         """
         if cls is not None:
             # logger.info("Creating EventModel from event: %s", event)
-
             app_name = None
             title_name = event.data.get('title')
             application_name = event.data.get('app')
@@ -384,6 +383,27 @@ class EventModel(BaseModel):
             ap_name=application_name.split('.')[0]
             url_link=event.data.get('url')
             # blocked=blocked_apps(ap_name,url_link)
+
+            event_data = dict()
+            app = event.data.get('app', '')
+            if app:
+                new_app = f" - {app}"
+                tmp_title = title_name.replace(new_app, "")
+                title_name = tmp_title
+                
+                if event.data.get("app") == "Visual Studio Code":
+                    tmp_app = "Code"
+                else:
+                    tmp_app = event.data.get("app")
+
+                if 'url' in event.data and event.data.get("url"):
+                    event_data["app"] = tmp_app
+                    event_data["title"] = title_name
+                    event_data["url"] = event.data.get("url")                              
+                else:
+                    event_data["app"] = tmp_app
+                    event_data["title"] = title_name
+
             if application_name != '' and title_name != '':
                 try:
                     event_model = cls(
@@ -391,7 +411,7 @@ class EventModel(BaseModel):
                         id=event.id,
                         timestamp=event.timestamp,
                         duration=event.duration.total_seconds(),
-                        datastr=json.dumps(event.data),
+                        datastr=json.dumps(event_data) if event_data else json.dumps(event.data),
                         app=event.data.get('app', ''),
                         title=title_name,
                         url=event.data.get('url', ''),
