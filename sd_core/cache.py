@@ -131,3 +131,20 @@ def cache_user_credentials(service):
             return None
     else:
         return cached_credentials
+
+def get_keychain_value(service, account):
+    """Read JSON value stored in keychain"""
+    result = subprocess.run(
+        ["security", "find-generic-password", "-s", service, "-a", account, "-w"],
+        capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        return None
+    try:
+        return json.loads(result.stdout.strip())
+    except json.JSONDecodeError:
+        return None
+
+
+# def test_get_all():
+#     return credentials_cache
