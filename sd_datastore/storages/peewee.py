@@ -985,10 +985,11 @@ class PeeweeStorage(AbstractStorage):
                 AND timestamp <= '{endtime}'
                 AND duration > 30
                 AND IFNULL(JSON_EXTRACT(datastr, '$.status'), '') NOT LIKE '%not-afk%'
+                AND app != 'unknown'
             ORDER BY
                 timestamp ASC;
         """
-
+        # print(raw_query)
         # Execute the raw query
         result = self.db.execute_sql(raw_query)
 
@@ -1040,10 +1041,10 @@ class PeeweeStorage(AbstractStorage):
                 OR
                 (COALESCE(TRIM(JSON_EXTRACT(datastr, '$.app')), '') != 'afk' AND duration >= 30)
                 )
+                AND app != 'unknown'
             ORDER BY
                 timestamp ASC;
         """
-
         # Execute the raw query
         result = self.db.execute_sql(raw_query)
 
@@ -1252,6 +1253,7 @@ class PeeweeStorage(AbstractStorage):
         q = (
             EventModel.select()
             .where(EventModel.bucket == self.bucket_keys[bucket_id])
+            .where(EventModel.app != "unknown")
             .order_by(EventModel.timestamp.desc())
             .limit(limit)
         )
