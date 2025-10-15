@@ -400,7 +400,7 @@ class EventModel(BaseModel):
                     event_data["app"] = tmp_app
                     event_data["title"] = title_name
                     event_data["url"] = event.data.get("url")                              
-                else:
+                elif 'status' not in event.data:
                     event_data["app"] = tmp_app
                     event_data["title"] = title_name
 
