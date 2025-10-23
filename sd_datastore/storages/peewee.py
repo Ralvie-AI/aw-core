@@ -198,7 +198,7 @@ class ApplicationModel(BaseModel):
 
     @classmethod
     def from_application_details(cls, application_details):
-        logger.info(f"Processing application details: {application_details}")
+        # logger.info(f"Processing application details: {application_details}")
 
         # Early return for AFK app_name
         if application_details.get('app_name', '').lower() == 'afk':
@@ -250,7 +250,7 @@ class ApplicationModel(BaseModel):
                 criteria=application_details.get("criteria", "")
             )
             if existing_instance:
-                logger.info(f"Updating existing application: {existing_instance}")
+                # logger.info(f"Updating existing application: {existing_instance}")
                 # Update the existing instance with new values
                 existing_instance.alias = application_details.get("alias", "")
                 existing_instance.is_blocked = application_details.get("is_blocked", False)
@@ -258,7 +258,7 @@ class ApplicationModel(BaseModel):
                 existing_instance.color = application_details.get("color", "")
                 existing_instance.criteria = application_details.get("criteria", "")
                 existing_instance.save()
-                logger.info(f"Existing application updated: {existing_instance}")
+                # logger.info(f"Existing application updated: {existing_instance}")
                 return existing_instance
             else:
                 logger.error("No existing application found to update")
@@ -1593,7 +1593,7 @@ class PeeweeStorage(AbstractStorage):
 
     def launch_application_start(self):
         settings = db_cache.retrieve(settings_cache_key)
-        logger.info(settings)
+        # logger.info(settings)
         # The code is checking if the value of the 'launch' key in the settings dictionary is truthy
         # (evaluates to True), and if it is, it calls the function launch_app().
         if settings['launch'] and sys.platform == "darwin" and not check_startup_status() :
@@ -1605,7 +1605,7 @@ class PeeweeStorage(AbstractStorage):
         manager = Manager()
         settings = db_cache.retrieve(settings_cache_key)
         status_list = manager.status()
-        print(status_list)
+        # print(status_list)
         for watchers in status_list:
             if watchers['watcher_name'] == "sd-watcher-afk" and watchers['Watcher_status']:
                 if settings['idle_time']:
