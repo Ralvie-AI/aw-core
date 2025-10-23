@@ -15,7 +15,6 @@ import ctypes
 from urllib.parse import unquote
 
 import pytz
-import tldextract
 from playhouse.shortcuts import model_to_dict
 
 from sd_core.cache import cache_user_credentials
@@ -33,9 +32,8 @@ elif sys.platform == "darwin":
     openssl = ctypes.cdll.LoadLibrary(libsqlcipher_path + '/libcrypto.3.dylib')
     libsqlcipher = ctypes.cdll.LoadLibrary(libsqlcipher_path + '/libsqlcipher.0.dylib')
 
-from sd_core.util import decrypt_uuid, get_document_title, get_domain, load_key, remove_more_page_suffix, \
-    start_all_module, stop_all_module
-import keyring
+from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix,
+                                start_all_module, stop_all_module, DEVELOPMENT_MODE)
 import iso8601
 from sd_core.dirs import get_data_dir
 from sd_core.models import Event
@@ -58,9 +56,6 @@ from peewee import (
 )
 
 from .abstract import AbstractStorage
-from cryptography.fernet import Fernet
-import cryptocode
-import keyring
 from peewee import DoesNotExist
 import uuid #UUID
 
@@ -315,9 +310,6 @@ def blocked_url(url):
 
     return False
 
-
-
-
 class EventModel(BaseModel):
     id = AutoField()
     bucket = ForeignKeyField(BucketModel, backref="events", index=True)
@@ -380,8 +372,8 @@ class EventModel(BaseModel):
             #     dct['is_ignore_idle_time']=apps.is_ignore_idle_time
             ApplicationModel.from_application_details(
                 {"app_name": event.data.get('app', ''), "url": event.data.get('url', '')})
-            ap_name=application_name.split('.')[0]
-            url_link=event.data.get('url')
+            # ap_name=application_name.split('.')[0]
+            # url_link=event.data.get('url')
             # blocked=blocked_apps(ap_name,url_link)
 
             event_data = dict()
@@ -630,7 +622,10 @@ class PeeweeStorage(AbstractStorage):
             password = decrypt_uuid(db_key, key)
             user_email = cached_credentials.get("email")
             company_id = cached_credentials.get("companyId")
-            print(password)
+
+            if DEVELOPMENT_MODE == 0:
+                print(password)
+                
             # Return true if password is not password
             if not password:
                 return False

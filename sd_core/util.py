@@ -16,6 +16,11 @@ manager = Manager()
 
 logger = logging.getLogger(__name__)
 
+# DEVELOPMENT_MODE = 0 is for local development.
+# DEVELOPMENT_MODE = 1 is for production.
+
+DEVELOPMENT_MODE = 0
+
 CACHE_KEY = "Sundial"
 
 class VersionException(Exception):
