@@ -227,6 +227,9 @@ class Datastore:
 
     def get_last_event_by_app_title_pulsetime(self, app, title):
         return self.storage_strategy.get_last_event_by_app_title_pulsetime(app, title)
+    
+    def get_lastest_event(self):
+        return self.storage_strategy.get_lastest_event()
 
 
 class Bucket:

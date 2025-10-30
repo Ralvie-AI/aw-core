@@ -323,3 +323,7 @@ class AbstractStorage(metaclass=ABCMeta):
     @abstractmethod
     def get_last_event_by_app_title_pulsetime(self, app, title):
         raise NotImplementedError
+    
+    @abstractmethod
+    def get_lastest_event(self):
+        raise NotImplementedError

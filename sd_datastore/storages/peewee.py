@@ -1609,6 +1609,12 @@ class PeeweeStorage(AbstractStorage):
                     return False
             else:
                 return False
+            
+    def get_lastest_event(self):
+        latest_event = EventModel.select().order_by(EventModel.id.desc()).first()
+        print("latest_event_id latest_event_idlatest_event_idlatest_event_id", latest_event.eventId)
+        return latest_event.eventId
+    
 
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",
