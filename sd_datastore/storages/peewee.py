@@ -1653,20 +1653,10 @@ class PeeweeStorage(AbstractStorage):
         return ScreenShotModel.select().count()
       
     def get_screenshot_record(self):
-        import json 
         screenshot_data = (ScreenShotModel
               .select()
               .order_by(ScreenShotModel.id) # ASC is implicit
               .limit(2))
-        print("screenshot_data ", screenshot_data)
-        for record in screenshot_data:
-            print(record.id, record.created_at, record.event.eventId, record.event.app)
-            print("record data str", record.event.datastr)
-            rr = json.loads(record.event.datastr)
-            print("rrrrrrrr", type(rr))
-            print("rrrrrrrrrrrrrrrr", rr)
-            print("record data str", type(record.event.datastr))
-            print("json ", record.json())
         return screenshot_data
 
 
