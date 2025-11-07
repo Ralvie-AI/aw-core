@@ -335,3 +335,14 @@ class AbstractStorage(metaclass=ABCMeta):
     @abstractmethod
     def get_latest_screenshot(self):
         raise NotImplementedError
+    
+    @abstractmethod
+    def get_screenshot_record(self):
+        raise NotImplementedError
+    
+    @abstractmethod
+    def get_screenshot_record_count(self):
+        raise NotImplementedError
+    
+
+

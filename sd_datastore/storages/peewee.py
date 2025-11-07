@@ -463,8 +463,7 @@ class ScreenShotModel(BaseModel):
     id = AutoField()
     event = ForeignKeyField(EventModel, backref="screenshots", index=True)
     file_path = TextField(null=True)
-    created_at = DateTimeField(index=True, default=datetime.now)
-
+    created_at = DateTimeField(index=True, default=lambda: datetime.now(timezone.utc))
 
     def json(self):
         """
@@ -473,7 +472,7 @@ class ScreenShotModel(BaseModel):
         """
         return {
             "id": self.id,
-            "created_at": iso8601.parse_date(self.created_at).astimezone(timezone.utc).isoformat(),
+            "created_at": self.created_at,
             "file_path": self.file_path,
             "event": model_to_dict(self.event, recurse=False)
         }
@@ -1648,7 +1647,27 @@ class PeeweeStorage(AbstractStorage):
 
     def get_latest_screenshot(self):
         latest_screenshot = ScreenShotModel.select().order_by(ScreenShotModel.event_id.desc()).first()
-        return latest_screenshot 
+        return latest_screenshot    
+    
+    def get_screenshot_record_count(self):
+        return ScreenShotModel.select().count()
+      
+    def get_screenshot_record(self):
+        import json 
+        screenshot_data = (ScreenShotModel
+              .select()
+              .order_by(ScreenShotModel.id) # ASC is implicit
+              .limit(2))
+        print("screenshot_data ", screenshot_data)
+        for record in screenshot_data:
+            print(record.id, record.created_at, record.event.eventId, record.event.app)
+            print("record data str", record.event.datastr)
+            rr = json.loads(record.event.datastr)
+            print("rrrrrrrr", type(rr))
+            print("rrrrrrrrrrrrrrrr", rr)
+            print("record data str", type(record.event.datastr))
+            print("json ", record.json())
+        return screenshot_data
 
 
     # def save_date(self):
