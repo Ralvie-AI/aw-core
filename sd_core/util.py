@@ -1,18 +1,23 @@
+import os
 import base64
 import ctypes
-import re
 import sys
-from typing import Tuple
-from sd_core import db_cache
-from sd_core.cache import *
 import logging
+from typing import Tuple
+
 from cryptography.fernet import Fernet
 import keyring
 import pam
+import requests
+
+from sd_core.cache import *
 from sd_main.manager import Manager
 from sd_core.db_cache import retrieve
-import requests
+
 manager = Manager()
+
+os.environ.pop('HTTP_PROXY', None)
+os.environ.pop('HTTPS_PROXY', None)
 
 logger = logging.getLogger(__name__)
 
