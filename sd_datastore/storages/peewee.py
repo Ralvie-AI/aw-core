@@ -464,6 +464,7 @@ class ScreenShotModel(BaseModel):
     event = ForeignKeyField(EventModel, backref="screenshots", index=True)
     file_path = TextField(null=True)
     sync_status = IntegerField(default=0)
+    object_key = TextField(null=True) # The objectKey obtained from the pre-signed URL will be mapped to
     created_at = DateTimeField(index=True, default=lambda: datetime.now(timezone.utc))
 
     def json(self):
