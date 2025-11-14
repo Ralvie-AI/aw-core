@@ -463,6 +463,7 @@ class ScreenShotModel(BaseModel):
     id = AutoField()
     event = ForeignKeyField(EventModel, backref="screenshots", index=True)
     file_path = TextField(null=True)
+    sync_status = IntegerField(default=0)
     created_at = DateTimeField(index=True, default=lambda: datetime.now(timezone.utc))
 
     def json(self):
