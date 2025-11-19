@@ -82,11 +82,15 @@ def get_password(service):
     if is_macos():
         command = ['security', 'find-generic-password', '-s', service, '-a', service, '-w']
         try:
+            logger.info(f"Running security command for {service}")
             result = subprocess.run(command, check=True, text=True, capture_output=True)
+            logger.info(f"result after run subprocess {result}")
             return result.stdout.strip()
         except subprocess.CalledProcessError:
+            logger.warning(f"No password found for {service}")
             return None
     else:
+        logger.info(f"Using keyring backend to retrive password for {service}")
         return keyring.get_password(service, service)
 
 def store_credentials(service, credentials):
