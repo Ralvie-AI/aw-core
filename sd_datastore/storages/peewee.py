@@ -1,29 +1,66 @@
-from decimal import Decimal
+import ctypes
 import json
 import logging
 import os
-import sys
 import platform
+import re
+import sys
+import time
+import uuid
+
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
+from urllib.parse import unquote
 from typing import (
     Any,
     Dict,
     List,
     Optional,
 )
-import re
-import ctypes
-from urllib.parse import unquote
 
+import cryptocode
+import iso8601
+import keyring
+import peewee
 import pytz
 import tldextract
+from cryptography.fernet import Fernet
+from peewee import (
+    AutoField,
+    BooleanField,
+    CharField,
+    DatabaseProxy,
+    DateTimeField,
+    DecimalField,
+    DoesNotExist,
+    ForeignKeyField,
+    IntegerField,
+    Model,
+    TextField,
+    UUIDField,
+)
+from playhouse.migrate import SqliteMigrator, migrate
 from playhouse.shortcuts import model_to_dict
+from playhouse.sqlcipher_ext import SqlCipherDatabase
 
+from sd_core import db_cache 
 from sd_core.cache import cache_user_credentials
-from sd_core import db_cache
-from sd_core.launch_start import set_autostart_registry, launch_app, check_startup_status
+from sd_core.dirs import get_data_dir
+from sd_core.launch_start import check_startup_status, launch_app, set_autostart_registry
+from sd_core.models import Event
+from sd_core.util import (
+    decrypt_uuid,
+    get_document_title,
+    get_domain,
+    load_key,
+    remove_more_page_suffix,
+    start_all_module,
+    stop_all_module,
+    DEVELOPMENT_MODE,
+)
 from sd_main.manager import Manager
-import time
+from .abstract import AbstractStorage
+
 if sys.platform == "win32":
     _module_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
     os.add_dll_directory(_module_dir)
@@ -33,37 +70,6 @@ elif sys.platform == "darwin":
     libsqlcipher_path = _parent_dir
     openssl = ctypes.cdll.LoadLibrary(libsqlcipher_path + '/libcrypto.3.dylib')
     libsqlcipher = ctypes.cdll.LoadLibrary(libsqlcipher_path + '/libsqlcipher.0.dylib')
-
-from sd_core.util import decrypt_uuid, get_document_title, get_domain, load_key, remove_more_page_suffix, \
-    start_all_module, stop_all_module
-import keyring
-import iso8601
-from sd_core.dirs import get_data_dir
-from sd_core.models import Event
-from playhouse.migrate import SqliteMigrator, migrate
-from playhouse.sqlcipher_ext import SqlCipherDatabase
-
-import peewee
-from peewee import (
-    AutoField,
-    CharField,
-    DateTimeField,
-    DecimalField,
-    BooleanField,
-    TextField,
-    UUIDField,
-    ForeignKeyField,
-    IntegerField,
-    Model,
-    DatabaseProxy,
-)
-
-from .abstract import AbstractStorage
-from cryptography.fernet import Fernet
-import cryptocode
-import keyring
-from peewee import DoesNotExist
-import uuid #UUID
 
 logging.basicConfig(encoding='utf-8')
 
@@ -229,10 +235,11 @@ class ApplicationModel(BaseModel):
                 criteria=application_details.get("criteria", "")
             )
 
-            if created:
-                logger.info(f"New application created: {new_instance}")
-            else:
-                logger.info(f"Application already exists: {new_instance}")
+            if DEVELOPMENT_MODE == 0:
+                if created:
+                    logger.info(f"New application created: {new_instance}")
+                else:
+                    logger.info(f"Application already exists: {new_instance}")
 
             return new_instance
 
