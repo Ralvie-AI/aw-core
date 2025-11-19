@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 # DEVELOPMENT_MODE = 0 is for local development.
 # DEVELOPMENT_MODE = 1 is for production.
 
-DEVELOPMENT_MODE = 1   
+DEVELOPMENT_MODE_MACOS = 1   
 
 CACHE_KEY = "Sundial"
 

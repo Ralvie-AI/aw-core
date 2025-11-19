@@ -56,7 +56,7 @@ from sd_core.util import (
     remove_more_page_suffix,
     start_all_module,
     stop_all_module,
-    DEVELOPMENT_MODE,
+    DEVELOPMENT_MODE_MACOS,
 )
 from sd_main.manager import Manager
 from .abstract import AbstractStorage
@@ -235,7 +235,7 @@ class ApplicationModel(BaseModel):
                 criteria=application_details.get("criteria", "")
             )
 
-            if DEVELOPMENT_MODE == 0:
+            if DEVELOPMENT_MODE_MACOS == 0:
                 if created:
                     logger.info(f"New application created: {new_instance}")
                 else:
@@ -642,7 +642,8 @@ class PeeweeStorage(AbstractStorage):
             db_proxy.initialize(_db)
             self.db = _db
             self.db.init(filepath)
-            logger.info(f"Using database file: {filepath}")
+            if DEVELOPMENT_MODE_MACOS == 0:
+                logger.info(f"Using database file: {filepath}")
             self.db.connect()
 
             try:
@@ -1560,7 +1561,8 @@ class PeeweeStorage(AbstractStorage):
 
     def launch_application_start(self):
         settings = db_cache.retrieve(settings_cache_key)
-        logger.info(settings)
+        if DEVELOPMENT_MODE_MACOS == 0:
+            logger.info(settings)
         # The code is checking if the value of the 'launch' key in the settings dictionary is truthy
         # (evaluates to True), and if it is, it calls the function launch_app().
         if settings['launch'] and sys.platform == "darwin" and not check_startup_status() :
