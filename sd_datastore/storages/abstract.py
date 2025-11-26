@@ -323,3 +323,19 @@ class AbstractStorage(metaclass=ABCMeta):
     @abstractmethod
     def get_lastest_event(self):
         raise NotImplementedError
+    
+    @abstractmethod
+    def save_screenshot(self, data) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_latest_screenshot(self):
+        raise NotImplementedError
+    
+    @abstractmethod
+    def get_screenshot_record(self):
+        raise NotImplementedError
+    
+    @abstractmethod
+    def get_screenshot_record_count(self):
+        raise NotImplementedError

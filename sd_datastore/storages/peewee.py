@@ -56,6 +56,8 @@ from peewee import (
     IntegerField,
     Model,
     DatabaseProxy,
+    DoesNotExist,
+
 )
 
 from .abstract import AbstractStorage
@@ -447,7 +449,27 @@ class EventModel(BaseModel):
             # "eventId": str(self.eventId)  # UUID
         }
 
+class ScreenShotModel(BaseModel):
+    id = AutoField()
+    event = ForeignKeyField(EventModel, backref="screenshots", index=True)
+    file_path = TextField(null=True)
+    sync_status = IntegerField(default=0)
+    object_key = TextField(null=True) # The objectKey obtained from the pre-signed URL will be mapped to
+    created_at = DateTimeField(index=True, default=lambda: datetime.now(timezone.utc))
 
+
+    def json(self):
+        """
+         Convert to JSON for sending to API. This is used to create a request to the API.
+         @return The JSON representation of the object as a dictionary. Note that the dictionary will be empty if there is no data
+        """
+        return {
+            "id": self.id,
+            "created_at": self.created_at,
+            "file_path": self.file_path,
+            "event": model_to_dict(self.event, recurse=False)
+        }
+    
 class SettingsModel(BaseModel):
     id = AutoField()
     code = CharField(unique=True)  # Ensure 'code' is unique across all settings
@@ -559,6 +581,7 @@ class PeeweeStorage(AbstractStorage):
             EventModel.create_table(safe=True)
             SettingsModel.create_table(safe=True)
             ApplicationModel.create_table(safe=True)
+            ScreenShotModel.create_table(safe=True)
             return True
         except Exception as e:
             logger.error(f"Error creating tables: {e}")
@@ -643,6 +666,7 @@ class PeeweeStorage(AbstractStorage):
                 EventModel.create_table(safe=True)
                 SettingsModel.create_table(safe=True)
                 ApplicationModel.create_table(safe=True)
+                ScreenShotModel.create_table(safe=True)
                 database_changed = True  # Assume tables creation is a change
             except Exception:
                 pass  # If tables already exist, it's not a change
@@ -1577,8 +1601,33 @@ class PeeweeStorage(AbstractStorage):
             
     def get_lastest_event(self):
         latest_event = EventModel.select().order_by(EventModel.id.desc()).first()
-        print("latest_event_id latest_event_idlatest_event_idlatest_event_id", latest_event.eventId)
-        return latest_event.eventId
+        return latest_event
+    
+    def save_screenshot(self, data) -> None:
+        logger.info(f"save screenshot => {data}")
+
+        event_uuid = data.pop('event')
+        event_instance = EventModel.get(EventModel.eventId == event_uuid) # Assuming EventModel has eventId
+        data['event'] = event_instance # Assign the instance
+        screenshot = ScreenShotModel(**data)        
+        print("screenshot ", screenshot)
+        screenshot.save()
+        logger.info(f"save screenshot success=> {data}")
+
+    def get_latest_screenshot(self):
+        latest_screenshot = ScreenShotModel.select().order_by(ScreenShotModel.event_id.desc()).first()
+        return latest_screenshot 
+    
+    def get_screenshot_record_count(self):
+        return ScreenShotModel.select().count()
+      
+    def get_screenshot_record(self):
+        screenshot_data = (ScreenShotModel
+              .select()
+              .order_by(ScreenShotModel.id) # ASC is implicit
+              .limit(2))
+    
+        return screenshot_data
 
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",
