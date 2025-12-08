@@ -464,6 +464,7 @@ class ScreenShotModel(BaseModel):
     event = ForeignKeyField(EventModel, backref="screenshots", index=True)
     file_path = TextField(null=True)
     sync_status = IntegerField(default=0)
+    capture_method = IntegerField(default=0)  # 0 = auto, 1 = manual
     object_key = TextField(null=True) # The objectKey obtained from the pre-signed URL will be mapped to
     created_at = DateTimeField(index=True, default=lambda: datetime.now(timezone.utc))
 
@@ -683,7 +684,14 @@ class PeeweeStorage(AbstractStorage):
                 database_changed = True  # Assume tables creation is a change
             except Exception:
                 pass  # If tables already exist, it's not a change
+            
+            # print(f" show tables => {self.db.get_tables()}")
+            
+            # if not "screenshotmodel" in self.db.get_tables():
+            #     self.db.create_tables([ScreenShotModel])
+            #     print("creating screenshotmodel table.")
 
+            # print(f" show tables => {self.db.get_tables()}")
             # Migrate database if needed, requires closing the connection first
             self.db.close()
             # If auto_migrate is called automatically if auto_migrate is called.
