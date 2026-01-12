@@ -1626,7 +1626,7 @@ class PeeweeStorage(AbstractStorage):
         screenshot_data = (ScreenShotModel
               .select()
               .order_by(ScreenShotModel.id) # ASC is implicit
-              .limit(2))
+              .limit(1))
     
         return screenshot_data
 
