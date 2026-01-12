@@ -227,6 +227,21 @@ class Datastore:
 
     def get_last_event_by_app_title_pulsetime(self, app, title):
         return self.storage_strategy.get_last_event_by_app_title_pulsetime(app, title)
+    
+    def get_lastest_event(self):
+        return self.storage_strategy.get_lastest_event()    
+      
+    def save_screenshot(self, data):
+        return self.storage_strategy.save_screenshot(data)
+    
+    def get_latest_screenshot(self):
+        return self.storage_strategy.get_latest_screenshot()
+    
+    def get_screenshot_record_count(self):
+        return self.storage_strategy.get_screenshot_record_count()
+    
+    def get_screenshot_record(self):
+        return self.storage_strategy.get_screenshot_record()
 
 
 class Bucket:
