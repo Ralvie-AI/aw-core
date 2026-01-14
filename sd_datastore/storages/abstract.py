@@ -344,5 +344,9 @@ class AbstractStorage(metaclass=ABCMeta):
     def get_screenshot_record_count(self):
         raise NotImplementedError
     
+    @abstractmethod
+    def get_events_timestamp_range(self, start, end):
+        raise NotImplementedError
+    
 
 
