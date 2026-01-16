@@ -1649,9 +1649,9 @@ class PeeweeStorage(AbstractStorage):
     def save_screenshot(self, data) -> None:
         logger.info(f"save screenshot => {data}")
 
-        event_uuid = data.pop('event')
-        event_instance = EventModel.get(EventModel.eventId == event_uuid) # Assuming EventModel has eventId
-        data['event'] = event_instance # Assign the instance
+        # event_uuid = data.pop('event')
+        # event_instance = EventModel.get(EventModel.eventId == event_uuid) # Assuming EventModel has eventId
+        # data['event'] = event_instance # Assign the instance
         screenshot = ScreenShotModel(**data)        
         print("screenshot ", screenshot)
         screenshot.save()
