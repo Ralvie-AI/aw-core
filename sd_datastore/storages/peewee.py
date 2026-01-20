@@ -1629,6 +1629,30 @@ class PeeweeStorage(AbstractStorage):
               .limit(1))
     
         return screenshot_data
+    
+    def get_events_timestamp_range(self, start, end):
+        logger.info(f"start => {start} => type => {type(start)}")
+        logger.info(f"start => {end} => type => {type(end)}")
+        start = datetime.strptime(
+        start,
+        "%Y-%m-%d %H:%M:%S.%f"
+        )
+
+        end = datetime.strptime(
+            end,
+            "%Y-%m-%d %H:%M:%S.%f"
+        )
+
+        query = (
+            EventModel
+            .select()
+            .where(EventModel.timestamp.between(start, end))
+        )
+
+        for row in query:
+            logger.info(f"row => {row}")
+            logger.info(f"row => {type(row)}")
+        return query 
 
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",
