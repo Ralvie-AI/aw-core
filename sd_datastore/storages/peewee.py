@@ -1689,10 +1689,18 @@ class PeeweeStorage(AbstractStorage):
             .where(EventModel.timestamp.between(start, end))
         )
 
-        for row in query:
-            logger.info(f"row => {row}")
-            logger.info(f"row => {type(row)}")
+        # for row in query:
+        #     logger.info(f"row => {row}")
+        #     logger.info(f"row => {type(row)}")
         return query 
+    
+
+    def get_event_by_id(self, event_id):       
+        try:
+            event = EventModel.get(EventModel.id == event_id)
+        except EventModel.DoesNotExist:
+            event = None
+        return event 
 
 
     # def save_date(self):

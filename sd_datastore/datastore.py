@@ -244,7 +244,10 @@ class Datastore:
         return self.storage_strategy.get_screenshot_record()    
    
     def get_events_timestamp_range(self, start, end):
-        return self.storage_strategy.get_events_timestamp_range(start, end)   
+        return self.storage_strategy.get_events_timestamp_range(start, end)
+
+    def get_event_by_id(self, event_id):
+        return self.storage_strategy.get_event_by_id(event_id)
 
 
 class Bucket:
