@@ -243,6 +243,9 @@ class Datastore:
     def get_events_timestamp_range(self, start, end):
         return self.storage_strategy.get_events_timestamp_range(start, end)
     
+    def get_event_by_id(self, event_id):
+        return self.storage_strategy.get_event_by_id(event_id)
+    
 
 class Bucket:
     def __init__(self, datastore: Datastore, bucket_id: str) -> None:

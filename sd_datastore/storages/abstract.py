@@ -344,3 +344,6 @@ class AbstractStorage(metaclass=ABCMeta):
     def get_events_timestamp_range(self, start, end):
         raise NotImplementedError
 
+    @abstractmethod
+    def get_event_by_id(self, event_id):
+        raise NotImplementedError

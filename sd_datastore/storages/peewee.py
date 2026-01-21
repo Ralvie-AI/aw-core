@@ -1607,9 +1607,9 @@ class PeeweeStorage(AbstractStorage):
     def save_screenshot(self, data) -> None:
         logger.info(f"save screenshot => {data}")
 
-        event_uuid = data.pop('event')
-        event_instance = EventModel.get(EventModel.eventId == event_uuid) # Assuming EventModel has eventId
-        data['event'] = event_instance # Assign the instance
+        # event_uuid = data.pop('event')
+        # event_instance = EventModel.get(EventModel.eventId == event_uuid) # Assuming EventModel has eventId
+        # data['event'] = event_instance # Assign the instance
         screenshot = ScreenShotModel(**data)        
         print("screenshot ", screenshot)
         screenshot.save()
@@ -1649,10 +1649,19 @@ class PeeweeStorage(AbstractStorage):
             .where(EventModel.timestamp.between(start, end))
         )
 
-        for row in query:
-            logger.info(f"row => {row}")
-            logger.info(f"row => {type(row)}")
+        # for row in query:
+        #     logger.info(f"row => {row}")
+        #     logger.info(f"row => {type(row)}")
         return query 
+    
+    def get_event_by_id(self, event_id):       
+        try:
+            event = EventModel.get(EventModel.id == event_id)
+        except EventModel.DoesNotExist:
+            event = None
+        
+        return event
+
 
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",
