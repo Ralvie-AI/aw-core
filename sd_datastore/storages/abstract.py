@@ -352,5 +352,9 @@ class AbstractStorage(metaclass=ABCMeta):
     def get_event_by_id(self, event_id):
         raise NotImplementedError
     
+    @abstractmethod
+    def update_ocr_text(self, screenshot_id, ocr_text):
+        raise NotImplementedError
+    
 
 
