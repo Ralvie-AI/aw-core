@@ -453,6 +453,7 @@ class ScreenShotModel(BaseModel):
     id = AutoField()
     event = ForeignKeyField(EventModel, backref="screenshots", index=True)
     file_path = TextField(null=True)
+    ocr_text = TextField(null=True)
     sync_status = IntegerField(default=0) # 0 = auto, 1 = manual
     # capture_method = IntegerField(default=0)  
     object_key = TextField(null=True) # The objectKey obtained from the pre-signed URL will be mapped to
@@ -1661,6 +1662,9 @@ class PeeweeStorage(AbstractStorage):
             event = None
         
         return event
+    
+    def update_ocr_text(self, screenshot_id, ocr_text):
+        ScreenShotModel.update(ocr_text=ocr_text).where(ScreenShotModel.id == screenshot_id).execute()
 
 
     # def save_date(self):

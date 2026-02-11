@@ -246,6 +246,9 @@ class Datastore:
     def get_event_by_id(self, event_id):
         return self.storage_strategy.get_event_by_id(event_id)
     
+    def update_ocr_text(self, screenshot_id, ocr_text):
+        return self.storage_strategy.update_ocr_text(screenshot_id, ocr_text)
+
 
 class Bucket:
     def __init__(self, datastore: Datastore, bucket_id: str) -> None:
