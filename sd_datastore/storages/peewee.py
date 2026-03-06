@@ -118,6 +118,16 @@ def auto_migrate(db: Any, path: str) -> None:
         server_sync_status_field = IntegerField(default=0)
         with db.atomic():
             migrate(migrator.add_column("eventmodel", "server_sync_status", server_sync_status_field))
+        
+    # check if screenshotmodel has ocr_text field
+    info = db.execute_sql("PRAGMA table_info(screenshotmodel)")
+    has_ocr_text = any(row[1] == "ocr_text" for row in info)
+
+    # Add the ocr_text column to the screenshotmodel.
+    if not has_ocr_text:
+        ocr_text_field = TextField(null=True)
+        with db.atomic():
+            migrate(migrator.add_column("screenshotmodel", "ocr_text", ocr_text_field))
 
     db.close()
 
