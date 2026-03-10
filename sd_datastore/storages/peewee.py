@@ -977,6 +977,7 @@ class PeeweeStorage(AbstractStorage):
                 AND timestamp <= '{endtime}'
                 AND duration > 30
                 AND IFNULL(JSON_EXTRACT(datastr, '$.status'), '') NOT LIKE '%not-afk%'
+                AND server_sync_status IN (0, 1)
             ORDER BY
                 timestamp ASC;
         """
