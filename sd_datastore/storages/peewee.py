@@ -1660,7 +1660,7 @@ class PeeweeStorage(AbstractStorage):
         return latest_event 
     
     def save_screenshot(self, data) -> None:
-        logger.info(f"save screenshot => {data}")
+        # logger.info(f"save screenshot => {data}")
 
         # event_uuid = data.pop('event')
         # event_instance = EventModel.get(EventModel.eventId == event_uuid) # Assuming EventModel has eventId
@@ -1684,17 +1684,11 @@ class PeeweeStorage(AbstractStorage):
         return screenshot_data
     
     def get_events_timestamp_range(self, start, end):
-        logger.info(f"start => {start} => type => {type(start)}")
-        logger.info(f"start => {end} => type => {type(end)}")
-        start = datetime.strptime(
-        start,
-        "%Y-%m-%d %H:%M:%S.%f"
-        )
+        # logger.info(f"start => {start} => type => {type(start)}")
+        # logger.info(f"start => {end} => type => {type(end)}")
+        start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S.%f")
 
-        end = datetime.strptime(
-            end,
-            "%Y-%m-%d %H:%M:%S.%f"
-        )
+        end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S.%f")
 
         query = (
             EventModel
