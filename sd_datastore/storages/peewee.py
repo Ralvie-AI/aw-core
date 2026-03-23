@@ -263,7 +263,7 @@ class ApplicationModel(BaseModel):
                 criteria=application_details.get("criteria", "")
             )
             if existing_instance:
-                logger.info(f"Updating existing application: {existing_instance}")
+                # logger.info(f"Updating existing application: {existing_instance}")
                 # Update the existing instance with new values
                 existing_instance.alias = application_details.get("alias", "")
                 existing_instance.is_blocked = application_details.get("is_blocked", False)
@@ -271,7 +271,7 @@ class ApplicationModel(BaseModel):
                 existing_instance.color = application_details.get("color", "")
                 existing_instance.criteria = application_details.get("criteria", "")
                 existing_instance.save()
-                logger.info(f"Existing application updated: {existing_instance}")
+                # logger.info(f"Existing application updated: {existing_instance}")
                 return existing_instance
             else:
                 logger.error("No existing application found to update")
