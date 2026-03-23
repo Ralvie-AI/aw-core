@@ -241,10 +241,10 @@ class ApplicationModel(BaseModel):
                 criteria=application_details.get("criteria", "")
             )
 
-            if created:
-                logger.info(f"New application created: {new_instance}")
-            else:
-                logger.info(f"Application already exists: {new_instance}")
+            # if created:
+            #     logger.info(f"New application created: {new_instance}")
+            # else:
+            #     logger.info(f"Application already exists: {new_instance}")
 
             return new_instance
 
