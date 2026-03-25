@@ -211,7 +211,7 @@ class ApplicationModel(BaseModel):
 
     @classmethod
     def from_application_details(cls, application_details):
-        logger.info(f"Processing application details: {application_details}")
+        # logger.info(f"Processing application details: {application_details}")
 
         # Early return for AFK app_name
         if application_details.get('app_name', '').lower() == 'afk':
@@ -919,8 +919,8 @@ class PeeweeStorage(AbstractStorage):
 
         #logger for server_sync_status
         updated_events = EventModel.select().where(EventModel.id.in_(list_of_ids))
-        for ev in updated_events:
-            logger.info(f"Event ID {ev.id} -> server_sync_status = {ev.server_sync_status}")
+        # for ev in updated_events:
+        #     logger.info(f"Event ID {ev.id} -> server_sync_status = {ev.server_sync_status}")
 
     def _get_event(self, bucket_id, event_id) -> Optional[EventModel]:
         """
