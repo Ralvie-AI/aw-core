@@ -1,0 +1,6 @@
+
+DEVELOPMENT_MODE = 1
+
+LOGGING_VERBOSE = 0
+
+CACHE_KEY = "Sundial"

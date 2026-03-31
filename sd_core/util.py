@@ -11,10 +11,6 @@ import keyring
 import pam
 
 from sd_core.cache import *
-from sd_qt.manager import Manager
-from sd_core.db_cache import retrieve
-
-manager = Manager()
 
 os.environ.pop('HTTP_PROXY', None)
 os.environ.pop('HTTPS_PROXY', None)
@@ -206,7 +202,6 @@ def authenticateMac(username, password):
         print(f"Authentication error: {e}")
         return False
 
-
 def reset_user():
     """
      Reset user to default values and stop all modules on success or failure Args : None Return : None Purpose : Clears password and cache
@@ -214,74 +209,8 @@ def reset_user():
     try:
         delete_password(CACHE_KEY)
         clear_credentials(CACHE_KEY)
-        stop_all_module()
     except Exception as e:
         print(f"Authentication error: {e}")
-
-
-def list_modules():
-    """
-     List all modules and their status. This is a wrapper around the : py : func : ` manager. status ` method.
-
-
-     @return A list of module names in alphabetical order of their status ( as returned by : py : func
-    """
-    modules = manager.status()
-    return modules
-
-
-def start_module(module_name):
-    """
-     Start a module. This is a convenience method to call : py : func : ` manager. start ` without having to worry about the name of the module.
-
-     @param module_name - The name of the module to start
-    """
-    manager.start(module_name)
-
-
-def stop_module(module_name):
-    """
-     Stop a module. This is a no - op if the module is not running. It does not check for availability of the module.
-
-     @param module_name - The name of the module to stop
-    """
-    manager.stop_modules(module_name)
-
-
-def stop_all_module():
-    """
-     Stop all sd - server modules that are not " sd - server ". This is useful for tests
-    """
-    modules = list_modules()
-    # Stop all modules that have a watcher_name
-    for module in modules:
-        # Stop the module watcher_name if it s sd server
-        if not module["watcher_name"] == "sd-server":
-            manager.stop_modules(module["watcher_name"])
-
-
-def stop_server():
-    modules = list_modules()
-    # Stop all modules that have a watcher_name
-    for module in modules:
-        manager.stop_modules(module["watcher_name"])
-
-
-def start_all_module():
-    """
-     Start all sd - server modules that don't have a watcher_name. This is used to ensure that we're able to listen for changes
-    """
-    modules = list_modules()
-
-    # Start the watcher manager.
-    settings_cache_key = "settings_cache"
-    cached_settings = retrieve(settings_cache_key)
-
-    for module in modules:
-        if not cached_settings.get('idle_time') and module == "sd-watcher-afk":
-            continue
-        manager.start(module["watcher_name"])
-
 
 def is_internet_connected():
     """

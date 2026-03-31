@@ -14,7 +14,6 @@ import re
 import ctypes
 from urllib.parse import unquote
 
-import pytz
 from playhouse.shortcuts import model_to_dict
 
 from sd_core.cache import cache_user_credentials
@@ -33,7 +32,7 @@ elif sys.platform == "darwin":
     libsqlcipher = ctypes.cdll.LoadLibrary(libsqlcipher_path + '/libsqlcipher.0.dylib')
 
 from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix,
-                                start_all_module, stop_all_module, DEVELOPMENT_MODE)
+                               DEVELOPMENT_MODE)
 import iso8601
 from sd_core.dirs import get_data_dir
 from sd_core.models import Event
@@ -721,9 +720,9 @@ class PeeweeStorage(AbstractStorage):
             db_cache.store(settings_cache_key, self.retrieve_all_settings())
             check_startup_status()
             # Stop all modules that have been changed.
-            if database_changed:
-                stop_all_module()
-            start_all_module()
+            # if database_changed:
+            #     stop_all_module()
+            # start_all_module()
             self.launch_application_start()
             db_cache.delete(settings_cache_key)
             db_cache.store(settings_cache_key, self.retrieve_all_settings())
