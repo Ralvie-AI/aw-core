@@ -113,6 +113,16 @@ def auto_migrate(db: Any, path: str) -> None:
             migrate(migrator.add_column("eventmodel", "server_sync_status", server_sync_status_field))
 
 
+    info = db.execute_sql("PRAGMA table_info(eventmodel)")
+    has_local_start_time = any(row[1] == "local_start_time" for row in info)
+
+    # Add the server_sync_status_field column to the eventmodel.
+    if not has_local_start_time:
+        local_start_time_field = DateTimeField(default=datetime.now, null=True)
+        with db.atomic():
+            migrate(migrator.add_column("eventmodel", "local_start_time", local_start_time_field))
+
+
     # check if screenshotmodel has ocr_text field
     info = db.execute_sql("PRAGMA table_info(screenshotmodel)")
     has_ocr_text = any(row[1] == "ocr_text" for row in info)
@@ -122,6 +132,17 @@ def auto_migrate(db: Any, path: str) -> None:
         ocr_text_field = TextField(null=True)
         with db.atomic():
             migrate(migrator.add_column("screenshotmodel", "ocr_text", ocr_text_field))
+
+    
+    # check if screenshotmodel has ocr_text field
+    info = db.execute_sql("PRAGMA table_info(screenshotmodel)")
+    has_local_capture_at = any(row[1] == "local_capture_at" for row in info)
+
+    # Add the ocr_text column to the screenshotmodel.
+    if not has_local_capture_at:
+        local_capture_at_field = DateTimeField(default=datetime.now, null=True)
+        with db.atomic():
+            migrate(migrator.add_column("screenshotmodel", "local_capture_at", local_capture_at_field))
 
     db.close()
 
@@ -335,6 +356,7 @@ class EventModel(BaseModel):
     application_name = CharField(max_length=50)
     server_sync_status = IntegerField(default=0)
     eventId = UUIDField(unique=True, default=uuid.uuid4)
+    local_start_time = DateTimeField(default=datetime.now, null=True)
 
     @classmethod
     def from_event(cls, bucket_key, event: Event):
@@ -480,6 +502,7 @@ class ScreenShotModel(BaseModel):
     capture_method = IntegerField(default=0)  # 0 = auto, 1 = manual
     object_key = TextField(null=True) # The objectKey obtained from the pre-signed URL will be mapped to
     created_at = DateTimeField(index=True, default=lambda: datetime.now(timezone.utc))
+    local_capture_at = DateTimeField(default=datetime.now, null=True)
 
     def json(self):
         """
@@ -1067,7 +1090,8 @@ class PeeweeStorage(AbstractStorage):
                         'id', id,
                         'bucket_id', bucket_id,
                         'application_name', application_name,
-                        'eventId', eventId
+                        'eventId', eventId,
+                        'local_start_time', STRFTIME('%Y-%m-%d %H:%M:%S', local_start_time)
                     )
                 ) AS formatted_events
             FROM
