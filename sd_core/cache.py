@@ -17,7 +17,7 @@ credentials_cache = TTLCache(maxsize=100, ttl=3600)
 
 def is_macos():
     """Check if the current OS is macOS."""
-    logger.info("Checking the operating system.")
+    # logger.info("Checking the operating system.")
     return platform.system() == 'Darwin'
 
 def run_keychain_command(command):
