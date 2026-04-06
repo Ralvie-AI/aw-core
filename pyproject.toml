@@ -39,6 +39,7 @@ keyrings-alt = "^5.0.0"
 keyring = "^25.0.0"
 sqlcipher3-wheels = "0.5.5"
 cffi = "1.17.1"
+charset-normalizer = "3.4.7"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.0"
