@@ -80,6 +80,13 @@ application_cache_key = "application_cache"
 settings_cache_key = "settings_cache"
 CACHE_KEY = "Sundial"
 
+
+def migrate_table(db, migrator, table_name, fields, existing_fields):
+    for field_name, field_obj in fields:
+        if field_name not in existing_fields:
+            with db.atomic():
+                migrate(migrator.add_column(table_name, field_name, field_obj))
+    
 def auto_migrate(db: Any, path: str) -> None:
     """
      Migrate bucketmodel to latest version. This is a wrapper around : func : ` ~sqlalchemy. orm. migrate ` to allow a user to specify a path to the database and to use it as a context manager.
@@ -102,47 +109,25 @@ def auto_migrate(db: Any, path: str) -> None:
         datastr_field = CharField(default="{}")
         with db.atomic():
             migrate(migrator.add_column("bucketmodel", "datastr", datastr_field))
-
-    info = db.execute_sql("PRAGMA table_info(eventmodel)")
-    has_server_sync_status = any(row[1] == "server_sync_status" for row in info)
-
-    # Add the server_sync_status_field column to the eventmodel.
-    if not has_server_sync_status:
-        server_sync_status_field = IntegerField(default=0)
-        with db.atomic():
-            migrate(migrator.add_column("eventmodel", "server_sync_status", server_sync_status_field))
-
-
-    info = db.execute_sql("PRAGMA table_info(eventmodel)")
-    has_local_start_time = any(row[1] == "local_start_time" for row in info)
-
-    # Add the server_sync_status_field column to the eventmodel.
-    if not has_local_start_time:
-        local_start_time_field = DateTimeField(default=datetime.now, null=True)
-        with db.atomic():
-            migrate(migrator.add_column("eventmodel", "local_start_time", local_start_time_field))
-
-
-    # check if screenshotmodel has ocr_text field
-    info = db.execute_sql("PRAGMA table_info(screenshotmodel)")
-    has_ocr_text = any(row[1] == "ocr_text" for row in info)
-
-    # Add the ocr_text column to the screenshotmodel.
-    if not has_ocr_text:
-        ocr_text_field = TextField(null=True)
-        with db.atomic():
-            migrate(migrator.add_column("screenshotmodel", "ocr_text", ocr_text_field))
-
     
-    # check if screenshotmodel has ocr_text field
-    info = db.execute_sql("PRAGMA table_info(screenshotmodel)")
-    has_local_capture_at = any(row[1] == "local_capture_at" for row in info)
+    models = [
+        {
+        "name" : "eventmodel",
+        "fields": [("server_sync_status", IntegerField(default=0)),
+                        ("local_start_time", DateTimeField(default=datetime.now, null=True)),]
+        },
+        {
+        "name": "screenshotmodel",
+        "fields": [("ocr_text", TextField(null=True)),
+                    ("local_capture_at", DateTimeField(default=datetime.now, null=True)),]
+        },
+    ]
 
-    # Add the ocr_text column to the screenshotmodel.
-    if not has_local_capture_at:
-        local_capture_at_field = DateTimeField(default=datetime.now, null=True)
-        with db.atomic():
-            migrate(migrator.add_column("screenshotmodel", "local_capture_at", local_capture_at_field))
+    for model in models:
+        table_name = model.get('name')
+        info = db.execute_sql(f"PRAGMA table_info({table_name})")
+        model_fields = [row[1] for row in info]
+        migrate_table(db, migrator, table_name, model.get('fields'), model_fields)
 
     db.close()
 
