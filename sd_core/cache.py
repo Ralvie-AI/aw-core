@@ -23,7 +23,7 @@ def is_macos():
 def run_keychain_command(command):
     """Run a command for macOS Keychain."""
     try:
-        logger.info(f"Running keychain command: {' '.join(command)}")
+        # logger.info(f"Running keychain command: {' '.join(command)}")
         subprocess.run(command, check=True, text=True, capture_output=True)
         return True
     except subprocess.CalledProcessError as e:
@@ -32,7 +32,7 @@ def run_keychain_command(command):
 
 def add_password(service, password):
     """Add or update a password in the system's secure storage."""
-    logger.info(f"Adding/updating password for service {service}.")
+    # logger.info(f"Adding/updating password for service {service}.")
     if is_macos():
         command = ['security', 'add-generic-password', '-s', service, '-a', service, '-w', password, '-U']
         return "Success" if run_keychain_command(command) else "Failed"
@@ -78,7 +78,7 @@ def delete_password(service):
 
 def get_password(service):
     """Retrieve a password from the system's secure storage."""
-    logger.info(f"Retrieving password for service {service}.")
+    # logger.info(f"Retrieving password for service {service}.")
     if is_macos():
         command = ['security', 'find-generic-password', '-s', service, '-a', service, '-w']
         try:
