@@ -87,6 +87,12 @@ application_cache_key = "application_cache"
 settings_cache_key = "settings_cache"
 CACHE_KEY = "Sundial"
 
+def migrate_table(db, migrator, table_name, fields, existing_fields):
+    for field_name, field_obj in fields:
+        if field_name not in existing_fields:
+            with db.atomic():
+                migrate(migrator.add_column(table_name, field_name, field_obj))
+
 def auto_migrate(db: Any, path: str) -> None:
     """
      Migrate bucketmodel to latest version. This is a wrapper around : func : ` ~sqlalchemy. orm. migrate ` to allow a user to specify a path to the database and to use it as a context manager.
@@ -109,25 +115,25 @@ def auto_migrate(db: Any, path: str) -> None:
         datastr_field = CharField(default="{}")
         with db.atomic():
             migrate(migrator.add_column("bucketmodel", "datastr", datastr_field))
+    
+    models = [
+        {
+        "name" : "eventmodel",
+        "fields": [("server_sync_status", IntegerField(default=0)),
+                        ("local_start_time", DateTimeField(default=datetime.now, null=True)),]
+        },
+        {
+        "name": "screenshotmodel",
+        "fields": [("ocr_text", TextField(null=True)),
+                    ("local_capture_at", DateTimeField(default=datetime.now, null=True)),]
+        },
+    ]
 
-    info = db.execute_sql("PRAGMA table_info(eventmodel)")
-    has_server_sync_status = any(row[1] == "server_sync_status" for row in info)
-
-    # Add the server_sync_status_field column to the eventmodel.
-    if not has_server_sync_status:
-        server_sync_status_field = IntegerField(default=0)
-        with db.atomic():
-            migrate(migrator.add_column("eventmodel", "server_sync_status", server_sync_status_field))
-        
-    # check if screenshotmodel has ocr_text field
-    info = db.execute_sql("PRAGMA table_info(screenshotmodel)")
-    has_ocr_text = any(row[1] == "ocr_text" for row in info)
-
-    # Add the ocr_text column to the screenshotmodel.
-    if not has_ocr_text:
-        ocr_text_field = TextField(null=True)
-        with db.atomic():
-            migrate(migrator.add_column("screenshotmodel", "ocr_text", ocr_text_field))
+    for model in models:
+        table_name = model.get('name')
+        info = db.execute_sql(f"PRAGMA table_info({table_name})")
+        model_fields = [row[1] for row in info]
+        migrate_table(db, migrator, table_name, model.get('fields'), model_fields)
 
     db.close()
 
@@ -343,6 +349,7 @@ class EventModel(BaseModel):
     application_name = CharField(max_length=50)
     server_sync_status = IntegerField(default=0)
     eventId = UUIDField(unique=True, default=uuid.uuid4)
+    local_start_time = DateTimeField(default=datetime.now, null=True)
 
     @classmethod
     def from_event(cls, bucket_key, event: Event):
@@ -468,6 +475,8 @@ class ScreenShotModel(BaseModel):
     # capture_method = IntegerField(default=0)  
     object_key = TextField(null=True) # The objectKey obtained from the pre-signed URL will be mapped to
     created_at = DateTimeField(index=True, default=lambda: datetime.now(timezone.utc))
+    local_capture_at = DateTimeField(default=datetime.now, null=True)
+
 
 
     def json(self):
@@ -670,7 +679,7 @@ class PeeweeStorage(AbstractStorage):
             db_proxy.initialize(_db)
             self.db = _db
             self.db.init(filepath)
-            logger.info(f"Using database file: {filepath}")
+            # logger.info(f"Using database file: {filepath}")
             self.db.connect()
 
             try:
@@ -1023,7 +1032,8 @@ class PeeweeStorage(AbstractStorage):
                         'id', id,
                         'bucket_id', bucket_id,
                         'application_name', application_name,
-                        'eventId', eventId
+                        'eventId', eventId,
+                        'local_start_time', STRFTIME('%Y-%m-%d %H:%M:%S', local_start_time)
                     )
                 ) AS formatted_events
             FROM
@@ -1590,7 +1600,7 @@ class PeeweeStorage(AbstractStorage):
 
     def launch_application_start(self):
         settings = db_cache.retrieve(settings_cache_key)
-        logger.info(settings)
+        # logger.info(settings)
         # The code is checking if the value of the 'launch' key in the settings dictionary is truthy
         # (evaluates to True), and if it is, it calls the function launch_app().
         if settings['launch'] and sys.platform == "darwin" and not check_startup_status() :
@@ -1625,7 +1635,7 @@ class PeeweeStorage(AbstractStorage):
         screenshot = ScreenShotModel(**data)        
         print("screenshot ", screenshot)
         screenshot.save()
-        logger.info(f"save screenshot success=> {data}")
+        # logger.info(f"save screenshot success=> {data}")
 
     def get_latest_screenshot(self):
         latest_screenshot = ScreenShotModel.select().order_by(ScreenShotModel.event_id.desc()).first()
