@@ -14,7 +14,6 @@ import re
 import ctypes
 from urllib.parse import unquote
 
-import pytz
 from playhouse.shortcuts import model_to_dict
 
 from sd_core.cache import cache_user_credentials
@@ -32,8 +31,10 @@ elif sys.platform == "darwin":
     openssl = ctypes.cdll.LoadLibrary(libsqlcipher_path + '/libcrypto.3.dylib')
     libsqlcipher = ctypes.cdll.LoadLibrary(libsqlcipher_path + '/libsqlcipher.0.dylib')
 
-from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix,
-                                start_all_module, stop_all_module, DEVELOPMENT_MODE)
+# from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix,
+#                                 start_all_module, stop_all_module, DEVELOPMENT_MODE)
+
+from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix, DEVELOPMENT_MODE)
 import iso8601
 from sd_core.dirs import get_data_dir
 from sd_core.models import Event
@@ -630,7 +631,7 @@ class PeeweeStorage(AbstractStorage):
         """
         db_key = ""
         cached_credentials = cache_user_credentials(CACHE_KEY)
-        database_changed = False  # Flag to track if the database has been changed
+        # database_changed = False  # Flag to track if the database has been changed
 
         # Returns the encrypted db_key if the cached credentials are cached.
         if cached_credentials is not None:
@@ -657,7 +658,7 @@ class PeeweeStorage(AbstractStorage):
 
             try:
                 os.remove(filepath)
-                database_changed = True
+                # database_changed = True
             except Exception:
                 pass
 
@@ -686,9 +687,9 @@ class PeeweeStorage(AbstractStorage):
                         + ".db"
                 )
                 filepath = os.path.join(data_dir, filename)
-            else:
-                if filepath != os.path.join(data_dir, filename):
-                    database_changed = True
+            # else:
+            #     if filepath != os.path.join(data_dir, filename):
+            #         database_changed = True
             _db = SqlCipherDatabase(None, passphrase=password)
             db_proxy.initialize(_db)
             self.db = _db
@@ -696,15 +697,16 @@ class PeeweeStorage(AbstractStorage):
             logger.info(f"Using database file: {filepath}")
             self.db.connect()
 
-            try:
-                BucketModel.create_table(safe=True)
-                EventModel.create_table(safe=True)
-                SettingsModel.create_table(safe=True)
-                ApplicationModel.create_table(safe=True)
-                ScreenShotModel.create_table(safe=True)                
-                database_changed = True  # Assume tables creation is a change
-            except Exception:
-                pass  # If tables already exist, it's not a change
+            self.create_tables()
+            # try:
+            #     BucketModel.create_table(safe=True)
+            #     EventModel.create_table(safe=True)
+            #     SettingsModel.create_table(safe=True)
+            #     ApplicationModel.create_table(safe=True)
+            #     ScreenShotModel.create_table(safe=True)                
+            #     # database_changed = True  # Assume tables creation is a change
+            # except Exception:
+            #     pass  # If tables already exist, it's not a change
             
             # print(f" show tables => {self.db.get_tables()}")
             
@@ -716,8 +718,9 @@ class PeeweeStorage(AbstractStorage):
             # Migrate database if needed, requires closing the connection first
             self.db.close()
             # If auto_migrate is called automatically if auto_migrate is called.
-            if auto_migrate(_db, filepath):  # Assuming auto_migrate returns True if migration happens
-                database_changed = True
+            auto_migrate(_db, filepath)
+            # if auto_migrate(_db, filepath):  # Assuming auto_migrate returns True if migration happens
+                # database_changed = True
             self.db.connect()
 
             # Update bucket keys
@@ -727,12 +730,15 @@ class PeeweeStorage(AbstractStorage):
             setup_weekday_settings()
             db_cache.store(application_cache_key, self.retrieve_application_names())
             db_cache.store(settings_cache_key, self.retrieve_all_settings())
-            check_startup_status()
+            # check_startup_status()
             # Stop all modules that have been changed.
-            if database_changed:
-                stop_all_module()
-            start_all_module()
-            self.launch_application_start()
+            # if database_changed:
+            #     stop_all_module()
+            # start_all_module()
+            
+            # logger.info(f"database_changed => {database_changed}")
+            # self.launch_application_start()
+
             db_cache.delete(settings_cache_key)
             db_cache.store(settings_cache_key, self.retrieve_all_settings())
             return True
