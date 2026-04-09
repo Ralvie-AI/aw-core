@@ -3,6 +3,7 @@ import base64
 import ctypes
 import sys
 import logging
+import threading
 from typing import Tuple
 
 import requests
@@ -11,18 +12,13 @@ import keyring
 import pam
 
 from sd_core.cache import *
+from sd_core.const import CACHE_KEY
 
 os.environ.pop('HTTP_PROXY', None)
 os.environ.pop('HTTPS_PROXY', None)
 
 logger = logging.getLogger(__name__)
 
-# DEVELOPMENT_MODE = 0 is for local development.
-# DEVELOPMENT_MODE = 1 is for production.
-
-DEVELOPMENT_MODE = 1
-
-CACHE_KEY = "Sundial"
 
 class VersionException(Exception):
     ...
@@ -270,4 +266,47 @@ def get_running_path():
         return os.path.dirname(sys.executable)
     else:
         return os.path.dirname(os.path.abspath(__file__))
-   
+
+
+def _task_runner(exec_cmd, timeout_sec):
+    # logger.info(f"Starting module {exec_cmd}")
+    if not isinstance(exec_cmd, list):
+        exec_cmd = [exec_cmd]
+
+    logger.debug("Running: {}".format(exec_cmd))
+
+    # Don't display a console window on Windows
+    # See: https://github.com/ActivityWatch/activitywatch/issues/212
+    startupinfo = None
+    if sys.platform in ("win32", "cygwin"):
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+    try:
+        # Use the 'with' statement to ensure underlying handles are cleaned up even if exceptions occur
+        with subprocess.Popen(
+                exec_cmd,
+                universal_newlines=True,
+                startupinfo=startupinfo
+        ) as proc:
+
+            try:
+                # Block and wait, with a timeout mechanism to prevent the process accumulation
+                proc.wait(timeout=timeout_sec)
+            except subprocess.TimeoutExpired:
+                # If the exe hangs, force kill it to prevent processes from piling up!
+                logger.error(f"Task execution timed out ({timeout_sec}s)! Force cleaning up...")
+                proc.kill()
+                proc.wait()
+    except Exception as e:
+        logger.error(f"Unexpected error occurred while starting the process: {e}")
+
+def start_exe(exec_cmd, timeout_sec=None):
+    logger.info(f"Starting module start exe {exec_cmd}")
+    worker_thread = threading.Thread(
+        target=_task_runner,
+        args=(exec_cmd, timeout_sec),
+        daemon=True
+    )
+    worker_thread.start()
+    return worker_thread

@@ -34,7 +34,8 @@ elif sys.platform == "darwin":
 # from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix,
 #                                 start_all_module, stop_all_module, DEVELOPMENT_MODE)
 
-from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix, DEVELOPMENT_MODE)
+from sd_core.const import DEVELOPMENT_MODE, CACHE_KEY
+from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix)
 import iso8601
 from sd_core.dirs import get_data_dir
 from sd_core.models import Event
@@ -79,8 +80,6 @@ _db = None
 LATEST_VERSION = 2
 application_cache_key = "application_cache"
 settings_cache_key = "settings_cache"
-CACHE_KEY = "Sundial"
-
 
 def migrate_table(db, migrator, table_name, fields, existing_fields):
     for field_name, field_obj in fields:

@@ -1,5 +1,4 @@
 from cachetools import TTLCache
-import time
 
 # Initialize the cache with a maximum size of 100 items and items living for 60 seconds
 cache = TTLCache(maxsize=100, ttl=3600)
