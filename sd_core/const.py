@@ -9,4 +9,9 @@ INTERNAL = 0
 LOGGING_VERBOSE = 0
 CACHE_KEY = "Sundial"
 
+
+# 1 set up for configurable server setting
+# 0 not set up for configurable server setting
+CONFIG_SERVER = 0
+
 PUBLIC_KEY = os.path.join(os.environ['LOCALAPPDATA'], 'Sundial', 'Sundial', 'sd-server', '{email}-{company_id}-public.pem')
