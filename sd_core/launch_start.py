@@ -3,6 +3,7 @@ import subprocess
 import sys
 import logging
 
+from sd_core.os_util import get_window_version
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -53,13 +54,6 @@ def get_login_items():
         items = result.stdout.strip().split(", ")
         return app_name in items
     return False
-
-def get_window_version():
-    version = sys.getwindowsversion()
-    if version.major == 10 and version.build >= 22000:
-        return 11
-    else:
-        return 10
 
 def check_startup_status():
     """

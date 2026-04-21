@@ -1,10 +1,14 @@
-import platform
 import subprocess
-import keyring
-import json
-from cachetools import TTLCache
 import logging
+import json
+
+import keyring
+from cachetools import TTLCache
 from keyrings.alt.file import PlaintextKeyring
+
+from sd_core.os_util import is_macos
+from sd_core.const import CACHE_KEY
+from sd_core.os_util import send_to_gui
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -14,11 +18,6 @@ keyring.set_keyring(PlaintextKeyring())
 
 # Initialize a cache with a maximum size and a TTL (time-to-live)
 credentials_cache = TTLCache(maxsize=100, ttl=3600)
-
-def is_macos():
-    """Check if the current OS is macOS."""
-    logger.info("Checking the operating system.")
-    return platform.system() == 'Darwin'
 
 def run_keychain_command(command):
     """Run a command for macOS Keychain."""
@@ -131,3 +130,8 @@ def cache_user_credentials(service):
             return None
     else:
         return cached_credentials
+
+
+def credentials():
+    creds = cache_user_credentials(CACHE_KEY)
+    return creds
