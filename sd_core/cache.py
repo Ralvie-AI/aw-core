@@ -49,8 +49,7 @@ def update_password(service, password):
         return "Failed"
 
 def keychain_item_exists(service):
-    """Check if a keychain item exists in the system's secure storage."""
-    logger.info(f"Checking if a keychain item exists for service {service}.")
+    """Check if a keychain item exists in the system's secure storage."""    
     if is_macos():
         command = ['security', 'find-generic-password', '-s', service, '-a', service]
         try:
@@ -59,7 +58,11 @@ def keychain_item_exists(service):
         except subprocess.CalledProcessError:
             return False
     else:
-        return keyring.get_password(service, service) is not None
+        if keyring.get_password(service, service) is not None:
+            return True 
+        else:
+            logger.info(f"There is no keychain item exists for service {service}.")
+            return False 
 
 def delete_password(service):
     """Delete a password from the system's secure storage if it exists."""
