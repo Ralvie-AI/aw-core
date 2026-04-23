@@ -8,7 +8,6 @@ from keyrings.alt.file import PlaintextKeyring
 
 from sd_core.os_util import is_macos
 from sd_core.const import CACHE_KEY
-from sd_core.os_util import send_to_gui
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
