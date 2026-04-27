@@ -33,7 +33,7 @@ elif sys.platform == "darwin":
 # from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix,
 #                                 start_all_module, stop_all_module, DEVELOPMENT_MODE)
 
-from sd_core.const import DEVELOPMENT_MODE, CACHE_KEY
+from sd_core.const import DEVELOPMENT_MODE, CACHE_KEY, SETTINGS_CACHE_KEY
 from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix)
 import iso8601
 from sd_core.dirs import get_data_dir
@@ -78,7 +78,7 @@ _db = None
 
 LATEST_VERSION = 2
 application_cache_key = "application_cache"
-settings_cache_key = "settings_cache"
+
 
 def migrate_table(db, migrator, table_name, fields, existing_fields):
     for field_name, field_obj in fields:
@@ -696,23 +696,7 @@ class PeeweeStorage(AbstractStorage):
             self.db.connect()
 
             self.create_tables()
-            # try:
-            #     BucketModel.create_table(safe=True)
-            #     EventModel.create_table(safe=True)
-            #     SettingsModel.create_table(safe=True)
-            #     ApplicationModel.create_table(safe=True)
-            #     ScreenShotModel.create_table(safe=True)                
-            #     # database_changed = True  # Assume tables creation is a change
-            # except Exception:
-            #     pass  # If tables already exist, it's not a change
-            
-            # print(f" show tables => {self.db.get_tables()}")
-            
-            # if not "screenshotmodel" in self.db.get_tables():
-            #     self.db.create_tables([ScreenShotModel])
-            #     print("creating screenshotmodel table.")
-
-            # print(f" show tables => {self.db.get_tables()}")
+           
             # Migrate database if needed, requires closing the connection first
             self.db.close()
             # If auto_migrate is called automatically if auto_migrate is called.
@@ -727,7 +711,7 @@ class PeeweeStorage(AbstractStorage):
             ensure_default_settings()
             setup_weekday_settings()
             db_cache.store(application_cache_key, self.retrieve_application_names())
-            db_cache.store(settings_cache_key, self.retrieve_all_settings())
+            db_cache.store(SETTINGS_CACHE_KEY, self.retrieve_all_settings())
             # check_startup_status()
             # Stop all modules that have been changed.
             # if database_changed:
@@ -737,8 +721,8 @@ class PeeweeStorage(AbstractStorage):
             # logger.info(f"database_changed => {database_changed}")
             # self.launch_application_start()
 
-            db_cache.delete(settings_cache_key)
-            db_cache.store(settings_cache_key, self.retrieve_all_settings())
+            db_cache.delete(SETTINGS_CACHE_KEY)
+            db_cache.store(SETTINGS_CACHE_KEY, self.retrieve_all_settings())
             return True
 
 
@@ -1444,7 +1428,7 @@ class PeeweeStorage(AbstractStorage):
         if not created:
             setting.value = value_json
             setting.save()
-            db_cache.store(settings_cache_key, self.retrieve_all_settings())
+            db_cache.store(SETTINGS_CACHE_KEY, self.retrieve_all_settings())
         return setting
 
     def retrieve_setting(self, code):
@@ -1482,7 +1466,7 @@ class PeeweeStorage(AbstractStorage):
                         f"Error decoding JSON for setting '{setting.code}': {e}")
                     # Or set a default value if appropriate
                     all_settings[setting.code] = None
-                db_cache.update(settings_cache_key,all_settings)
+                db_cache.update(SETTINGS_CACHE_KEY,all_settings)
             return all_settings
         except AttributeError as e:
             logger.info(f"AttributeError: {e}")
@@ -1645,7 +1629,7 @@ class PeeweeStorage(AbstractStorage):
             raise
 
     def launch_application_start(self):
-        settings = db_cache.retrieve(settings_cache_key)
+        settings = db_cache.retrieve(SETTINGS_CACHE_KEY)
         # logger.info(settings)
         # The code is checking if the value of the 'launch' key in the settings dictionary is truthy
         # (evaluates to True), and if it is, it calls the function launch_app().
@@ -1656,7 +1640,7 @@ class PeeweeStorage(AbstractStorage):
 
     def afk_status(self):
         manager = Manager()
-        settings = db_cache.retrieve(settings_cache_key)
+        settings = db_cache.retrieve(SETTINGS_CACHE_KEY)
         status_list = manager.status()
         # print(status_list)
         for watchers in status_list:

@@ -8,6 +8,8 @@ STAGING = 1
 INTERNAL = 0
 LOGGING_VERBOSE = 0
 CACHE_KEY = "Sundial"
+SETTINGS_CACHE_KEY = "settings_cache"
+
 
 
 # 1 set up for configurable server setting
