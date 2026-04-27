@@ -12,7 +12,6 @@ from typing import (
 )
 import re
 import ctypes
-from urllib.parse import unquote
 
 from playhouse.shortcuts import model_to_dict
 

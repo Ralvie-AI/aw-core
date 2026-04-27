@@ -5,6 +5,7 @@ import sys
 import logging
 import threading
 import time
+import subprocess
 from datetime import datetime, timedelta
 from typing import Tuple
 
@@ -13,7 +14,7 @@ from cryptography.fernet import Fernet
 import keyring
 import pam
 
-from sd_core.cache import *
+from sd_core.cache import cache_user_credentials, delete_password, clear_credentials
 from sd_core.const import CACHE_KEY, DEVELOPMENT_MODE, LOGGING_VERBOSE
 
 os.environ.pop('HTTP_PROXY', None)
@@ -327,7 +328,6 @@ def convert_datetime_string(dt_string: str) -> str:
 
     dt = parser.parse(dt_string)
     return dt.astimezone(ZoneInfo("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
-
 
 def add_end_time(start_time, seconds_to_add):
     # Parse the ISO string
