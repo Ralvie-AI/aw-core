@@ -6,6 +6,7 @@ import logging
 import threading
 import time
 import subprocess
+import configparser
 from datetime import datetime, timedelta
 from typing import Tuple
 
@@ -345,3 +346,26 @@ def add_end_time(start_time, seconds_to_add):
     # Format as ISO8601 without fractional seconds
     end_time = rounded_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     return end_time
+
+def read_config(config_file_path: str, name: str):
+    if os.path.isfile(config_file_path):
+        config = configparser.ConfigParser()
+        config.read(config_file_path)
+        try:
+            return config.get(name, 'protocol'), config.get(name, 'host')
+        except Exception as e:
+            logger.error(f"Error reading lang for {name}: {e}")
+            return None, None
+    return None, None
+        
+def write_config(config_file_path: str, name: str, protocol: str, host: str):
+    config = configparser.ConfigParser()
+    config.read(config_file_path)
+    # Add a section to the config if it doesn t already exist.
+    if not config.has_section(name):
+        config.add_section(name)
+
+    config.set(name, 'protocol', protocol)
+    config.set(name, 'host', host)
+    with open(config_file_path, 'w') as configfile:
+        config.write(configfile)
