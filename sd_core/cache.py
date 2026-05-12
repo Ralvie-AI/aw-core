@@ -7,7 +7,7 @@ from cachetools import TTLCache
 from keyrings.alt.file import PlaintextKeyring
 
 from sd_core.os_util import is_macos
-from sd_core.const import CACHE_KEY
+from sd_core.const import CACHE_KEY, DEVELOPMENT_MODE
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -116,8 +116,16 @@ def clear_all_credentials():
 def cache_user_credentials(service):
     """Cache user credentials for the given service."""
     cached_credentials = get_credentials(service)
+
+    if DEVELOPMENT_MODE != 1:
+        logger.info(f"cached_credentials => {cached_credentials}")
+
     if cached_credentials is None:
         credentials_str = get_password(service)
+
+        if DEVELOPMENT_MODE != 1:
+            logger.info(f"credentials_str => {credentials_str}")
+
         if credentials_str:
             try:
                 # Parse the JSON string to a dictionary
