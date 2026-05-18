@@ -1,3 +1,4 @@
+import time
 from decimal import Decimal
 import json
 import logging
@@ -18,8 +19,7 @@ from playhouse.shortcuts import model_to_dict
 from sd_core.cache import cache_user_credentials
 from sd_core import db_cache
 from sd_core.launch_start import set_autostart_registry, launch_app, check_startup_status
-from sd_qt.manager import Manager
-import time
+
 if sys.platform == "win32":
     _module_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
     os.add_dll_directory(_module_dir)
@@ -79,6 +79,19 @@ _db = None
 LATEST_VERSION = 2
 application_cache_key = "application_cache"
 
+MODEL_NAME_FIELDS = [
+    {
+        "name" : "eventmodel",
+        "fields": [("server_sync_status", IntegerField(default=0)),
+                   ("local_start_time", DateTimeField(default=datetime.now, null=True)),]
+    },
+    {
+        "name": "screenshotmodel",
+        "fields": [("ocr_text", TextField(null=True)),
+                   ("local_capture_at", DateTimeField(default=datetime.now, null=True)),]
+    },    
+]
+
 
 def migrate_table(db, migrator, table_name, fields, existing_fields):
     for field_name, field_obj in fields:
@@ -108,21 +121,8 @@ def auto_migrate(db: Any, path: str) -> None:
         datastr_field = CharField(default="{}")
         with db.atomic():
             migrate(migrator.add_column("bucketmodel", "datastr", datastr_field))
-    
-    models = [
-        {
-        "name" : "eventmodel",
-        "fields": [("server_sync_status", IntegerField(default=0)),
-                        ("local_start_time", DateTimeField(default=datetime.now, null=True)),]
-        },
-        {
-        "name": "screenshotmodel",
-        "fields": [("ocr_text", TextField(null=True)),
-                    ("local_capture_at", DateTimeField(default=datetime.now, null=True)),]
-        },
-    ]
 
-    for model in models:
+    for model in MODEL_NAME_FIELDS:
         table_name = model.get('name')
         info = db.execute_sql(f"PRAGMA table_info({table_name})")
         model_fields = [row[1] for row in info]
@@ -1636,21 +1636,7 @@ class PeeweeStorage(AbstractStorage):
         if settings['launch'] and sys.platform == "darwin" and not check_startup_status() :
             launch_app()
         elif settings['launch'] and sys.platform == "win32" and not check_startup_status():
-            set_autostart_registry(autostart=True)
-
-    def afk_status(self):
-        manager = Manager()
-        settings = db_cache.retrieve(SETTINGS_CACHE_KEY)
-        status_list = manager.status()
-        # print(status_list)
-        for watchers in status_list:
-            if watchers['watcher_name'] == "sd-watcher-afk" and watchers['Watcher_status']:
-                if settings['idle_time']:
-                    return True
-                else:
-                    return False
-            else:
-                return False
+            set_autostart_registry(autostart=True)   
             
     def get_lastest_event(self):
         latest_event = EventModel.select().order_by(EventModel.id.desc()).first()
