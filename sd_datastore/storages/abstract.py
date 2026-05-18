@@ -356,5 +356,6 @@ class AbstractStorage(metaclass=ABCMeta):
     def update_ocr_text(self, screenshot_id, ocr_text):
         raise NotImplementedError
     
-
-
+    @abstractmethod
+    def get_last_row_today(self, screenshot_create_at):
+        raise NotImplementedError

@@ -1710,6 +1710,22 @@ class PeeweeStorage(AbstractStorage):
         ScreenShotModel.update(ocr_text=ocr_text).where(ScreenShotModel.id == screenshot_id).execute()
 
 
+    def get_last_row_today(self, screenshot_create_at):
+        last_row = (
+            EventModel
+            .select()
+            .where(EventModel.timestamp.date() == screenshot_create_at.date())
+            .order_by(EventModel.timestamp.id)
+            .first()
+        )
+
+        if last_row:
+            end_time = last_row.timestamp + timedelta(seconds=last_row.duration)
+
+            if screenshot_create_at <= end_time:
+                print("Within duration")
+
+
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",
     #                                                     defaults={'value': datetime.now().date()})
