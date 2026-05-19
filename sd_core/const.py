@@ -9,6 +9,7 @@ INTERNAL = 0
 LOGGING_VERBOSE = 0
 CACHE_KEY = "Sundial"
 SETTINGS_CACHE_KEY = "settings_cache"
+LOCAL_HOST = "http://localhost:7600/api"
 
 
 
