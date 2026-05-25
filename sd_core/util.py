@@ -16,7 +16,7 @@ import keyring
 import pam
 
 from sd_core.cache import cache_user_credentials, delete_password, clear_credentials
-from sd_core.const import CACHE_KEY, DEVELOPMENT_MODE, LOGGING_VERBOSE
+from sd_core.const import CACHE_KEY, LOGGING_VERBOSE
 
 os.environ.pop('HTTP_PROXY', None)
 os.environ.pop('HTTPS_PROXY', None)
@@ -317,7 +317,7 @@ def start_exe(exec_cmd, timeout_sec=None):
 
 
 def stop_process_by_exe(exe_name, time_sleep=0.2):
-    if DEVELOPMENT_MODE == LOGGING_VERBOSE:
+    if 1 == LOGGING_VERBOSE:
         logger.info(f"killing start cmd_name {exe_name}")   
     subprocess.run(f"taskkill /F /IM {exe_name}", shell=True)
     time.sleep(time_sleep)  # wait 200ms for process cleanup

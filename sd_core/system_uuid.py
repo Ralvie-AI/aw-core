@@ -12,7 +12,7 @@ import win32com.client
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 from sd_core.cache import keychain_item_exists, get_password
-from sd_core.const import CACHE_KEY, DEVELOPMENT_MODE, LOGGING_VERBOSE
+from sd_core.const import CACHE_KEY, LOGGING_VERBOSE
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def generate_uuid():
                                 r"SOFTWARE\Microsoft\Cryptography")
             value, _ = winreg.QueryValueEx(key, "MachineGuid")
 
-            if DEVELOPMENT_MODE == LOGGING_VERBOSE:
+            if 1 == LOGGING_VERBOSE:
                 logger.info(f"get_machine_guid => {value}")
 
 
@@ -58,7 +58,7 @@ def generate_uuid():
             )
             value = f"{serial_number.value:08X}"
 
-            if DEVELOPMENT_MODE == LOGGING_VERBOSE:
+            if 1 == LOGGING_VERBOSE:
                 logger.info(f"get_volume_serial => {value}")
 
             return value
@@ -70,7 +70,7 @@ def generate_uuid():
         try:
             host_name = socket.gethostname()
 
-            if DEVELOPMENT_MODE == LOGGING_VERBOSE:
+            if 1 == LOGGING_VERBOSE:
                 logger.info(f"get_hostname => {host_name}")
 
             return host_name
@@ -101,13 +101,13 @@ def generate_uuid():
         raw = "|".join(parts).encode("utf-8")
         hash_bytes = hashlib.sha256(raw).digest()
 
-        if DEVELOPMENT_MODE == LOGGING_VERBOSE:
+        if 1 == LOGGING_VERBOSE:
             logger.info(f"hash_bytes => {hash_bytes}")
 
         # Use first 16 bytes to create UUID
         machine_uuid = uuid.UUID(bytes=hash_bytes[:16])
 
-        if DEVELOPMENT_MODE == LOGGING_VERBOSE:
+        if 1 == LOGGING_VERBOSE:
             logger.info(f"machine_uuid => {machine_uuid}")
 
 
@@ -149,7 +149,7 @@ def get_system_uuid_from_win32com_client():
             logger.info(f"Name: {item.Name}") 
             logger.info(f"IdentifyingNumber: {item.IdentifyingNumber}") 
         
-        if DEVELOPMENT_MODE == LOGGING_VERBOSE:
+        if 1 == LOGGING_VERBOSE:
             logger.info(f"get_system_uuid_from_win32com_client item_uuid => {item_uuid}")
 
         return item_uuid
@@ -169,7 +169,7 @@ def get_system_uuid_from_shell():
         )
         uuid = result.stdout.strip()
 
-        if DEVELOPMENT_MODE == LOGGING_VERBOSE:
+        if 1 == LOGGING_VERBOSE:
             logger.info(f"get_system_uuid_from_shell type => {type(uuid)}")
             logger.info(f"get_system_uuid_from_shell uuid => {uuid}")
             logger.info(f"get_system_uuid_from_shell uuid len => {len(uuid)}")
@@ -200,7 +200,7 @@ def get_system_uuid():
                                              ).decode()
             lines = output.strip().split("\n")
 
-            if DEVELOPMENT_MODE == LOGGING_VERBOSE:
+            if 1 == LOGGING_VERBOSE:
                 logger.info(f"get_system_uuid => {lines}")
                 logger.info(f"get_system_uuid type => {type(lines)}")
                 logger.info(f"get_system_uuid len => {len(lines)}")
@@ -208,7 +208,7 @@ def get_system_uuid():
             if len(lines) > 1:
                 uuid = lines[1].strip()
 
-                if DEVELOPMENT_MODE == LOGGING_VERBOSE:
+                if 1 == LOGGING_VERBOSE:
                     logger.info(f"get_system_uuid uuid => {uuid}")
 
                 return uuid 
@@ -242,7 +242,7 @@ def get_uuid_address(email=None, system_uuid=None):
         key = email
         lowercase_password = key.lower()
 
-        if DEVELOPMENT_MODE == LOGGING_VERBOSE:
+        if 1 == LOGGING_VERBOSE:
             logger.info(f"mail lowercase {lowercase_password}")
         
         return encrypt_system_uuid(system_uuid, lowercase_password)
