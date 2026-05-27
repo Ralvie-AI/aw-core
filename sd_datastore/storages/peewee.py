@@ -33,7 +33,7 @@ elif sys.platform == "darwin":
 # from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix,
 #                                 start_all_module, stop_all_module, DEVELOPMENT_MODE)
 
-from sd_core.const import DEVELOPMENT_MODE, CACHE_KEY, SETTINGS_CACHE_KEY
+from sd_core.const import DEVELOPMENT_MODE, CACHE_KEY, SETTINGS_CACHE_KEY, LOGGING_VERBOSE
 from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix)
 import iso8601
 from sd_core.dirs import get_data_dir
@@ -240,7 +240,7 @@ class ApplicationModel(BaseModel):
                 criteria=application_details.get("criteria", "")
             )
 
-            if DEVELOPMENT_MODE == 0:                    
+            if LOGGING_VERBOSE == 1:                    
                 if created:
                     logger.info(f"New application created: {new_instance}")
                 else:
@@ -666,7 +666,7 @@ class PeeweeStorage(AbstractStorage):
             user_email = cached_credentials.get("email")
             company_id = cached_credentials.get("companyId")
 
-            if DEVELOPMENT_MODE == 0:
+            if LOGGING_VERBOSE == 1:
                 print(password)
                 
             # Return true if password is not password
