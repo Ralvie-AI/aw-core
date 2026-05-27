@@ -29,7 +29,7 @@ def get_log_file_path() -> Optional[str]:  # pragma: no cover
 def setup_logging(
     name: str,
     testing=False,
-    verbose=False,
+    # verbose=False,
     log_stderr=True,
     log_file=False,
 ):  # pragma: no cover
@@ -43,7 +43,19 @@ def setup_logging(
      @param log_file - Whether or not to log to file (
     """
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
+
+    FORCE_VERBOSE = True
+    level = logging.DEBUG if FORCE_VERBOSE else logging.INFO
+
+    # root use INFO 
+    root_logger.setLevel(logging.INFO)
+
+    #DEBUG only SD
+    logging.getLogger("sd").setLevel(level)
+    logging.getLogger("sd_main").setLevel(level)
+    logging.getLogger("sd_core").setLevel(level)
+    logging.getLogger("sd_server").setLevel(level)
+    logging.getLogger("sd_pixel_engine").setLevel(level)
     root_logger.handlers = []
 
     # run with LOG_LEVEL=DEBUG to customize log level across all SD components
