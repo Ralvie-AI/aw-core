@@ -9,6 +9,9 @@ from keyrings.alt.file import PlaintextKeyring
 from sd_core.os_util import is_macos
 from sd_core.const import CACHE_KEY, DEVELOPMENT_MODE
 
+
+IS_MACOS = is_macos()
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,7 +19,8 @@ logger = logging.getLogger(__name__)
 keyring.set_keyring(PlaintextKeyring())
 
 # Initialize a cache with a maximum size and a TTL (time-to-live)
-credentials_cache = TTLCache(maxsize=100, ttl=3600)
+# credentials_cache = TTLCache(maxsize=10, ttl=21600)     # 6 hours
+credentials_cache = TTLCache(maxsize=10, ttl=3600)     # 1 hour
 
 def run_keychain_command(command):
     """Run a command for macOS Keychain."""
@@ -31,31 +35,28 @@ def run_keychain_command(command):
 def add_password(service, password):
     """Add or update a password in the system's secure storage."""
     logger.info(f"Adding/updating password for service {service}.")
-    if is_macos():
+
+    credentials_cache.clear()
+
+    if  not service in password.keys():
+        password.update({service: True})
+
+    credentials_cache[service] = password
+    
+    password = json.dumps(password)
+    
+    if IS_MACOS:
         command = ['security', 'add-generic-password', '-s', service, '-a', service, '-w', password, '-U']
-        return "Success" if run_keychain_command(command) else "Failed"
+        return run_keychain_command(command)
     else:
         keyring.set_password(service, service, password)
-        return "Success"
-
-def update_password(service, password):
-    """Update an existing password in the system's secure storage."""
-    logger.info(f"Updating password for service {service}.")
-    if keychain_item_exists(service):
-        return add_password(service, password)
-    else:
-        logger.warning(f"Password for service {service} does not exist. Cannot update.")
-        return "Failed"
+        return True
 
 def keychain_item_exists(service):
     """Check if a keychain item exists in the system's secure storage."""    
-    if is_macos():
+    if IS_MACOS:
         command = ['security', 'find-generic-password', '-s', service, '-a', service]
-        try:
-            subprocess.run(command, check=True, text=True, capture_output=True)
-            return True
-        except subprocess.CalledProcessError:
-            return False
+        return run_keychain_command(command)
     else:
         if keyring.get_password(service, service) is not None:
             return True 
@@ -66,8 +67,11 @@ def keychain_item_exists(service):
 def delete_password(service):
     """Delete a password from the system's secure storage if it exists."""
     logger.info(f"Deleting password for service {service}.")
+
+    credentials_cache.clear()
+
     if keychain_item_exists(service):
-        if is_macos():
+        if IS_MACOS:
             command = ['security', 'delete-generic-password', '-s', service, '-a', service]
             return "Success" if run_keychain_command(command) else "Failed"
         else:
@@ -75,12 +79,12 @@ def delete_password(service):
             return "Success"
     else:
         logger.warning("Keychain item not found.")
-        return "Keychain item not found"
+        return "Keychain item not found"    
 
 def get_password(service):
     """Retrieve a password from the system's secure storage."""
     logger.info(f"Retrieving password for service {service}.")
-    if is_macos():
+    if IS_MACOS:
         command = ['security', 'find-generic-password', '-s', service, '-a', service, '-w']
         try:
             result = subprocess.run(command, check=True, text=True, capture_output=True)

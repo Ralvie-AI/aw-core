@@ -209,8 +209,6 @@ def reset_user():
     """
     try:
         delete_password(CACHE_KEY)
-        clear_credentials(CACHE_KEY)
-        # stop_all_module()
     except Exception as e:
         print(f"Authentication error: {e}")
 
