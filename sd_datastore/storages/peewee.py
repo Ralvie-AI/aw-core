@@ -656,6 +656,7 @@ class PeeweeStorage(AbstractStorage):
             user_email = cached_credentials.get("email")
             company_id = cached_credentials.get("companyId")
             print(password)
+            logger.debug(f"DB password {password}")
             # Return true if password is not password
             if not password:
                 return False
