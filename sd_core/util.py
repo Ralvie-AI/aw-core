@@ -15,7 +15,7 @@ from cryptography.fernet import Fernet
 import keyring
 import pam
 
-from sd_core.cache import cache_user_credentials, delete_password, clear_credentials
+from sd_core.cache import credentials, delete_password
 from sd_core.const import CACHE_KEY, LOGGING_VERBOSE
 
 os.environ.pop('HTTP_PROXY', None)
@@ -77,7 +77,7 @@ def load_key(service_name):
 
      @return A dict of credentials or None if not found in the cache or no credentials could be found in the
     """
-    cached_credentials = cache_user_credentials(CACHE_KEY)
+    cached_credentials = credentials()
     # Returns the credentials for the service.
     if cached_credentials != None:
         return cached_credentials.get(service_name)
@@ -391,3 +391,16 @@ def format_duration(duration):
         elif s > 0:
             return '{:02d}s'.format(s)
     return '1s'
+
+
+def inspect_function():
+    import inspect
+    # inspect.stack()[1] gets the immediate caller
+    caller_frame = inspect.stack()[1]
+    
+    # Extract details
+    caller_filename = caller_frame.filename
+    caller_line = caller_frame.lineno
+    caller_name = caller_frame.function
+
+    logger.info(f"Function called from {caller_name} in {caller_filename} at line {caller_line}")
