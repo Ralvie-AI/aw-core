@@ -7,8 +7,7 @@ from cachetools import TTLCache
 from keyrings.alt.file import PlaintextKeyring
 
 from sd_core.os_util import is_macos
-from sd_core.const import CACHE_KEY, DEVELOPMENT_MODE, LOGGING_VERBOSE
-
+from sd_core.const import CACHE_KEY, LOGGING_VERBOSE
 
 IS_MACOS = is_macos()
 
@@ -122,6 +121,7 @@ def cache_user_credentials(service):
     cached_credentials = get_credentials(service)
 
     if LOGGING_VERBOSE == 1:
+
         logger.info(f"cached_credentials => {cached_credentials}")
 
     if cached_credentials is None:
