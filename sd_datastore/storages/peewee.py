@@ -16,7 +16,7 @@ import ctypes
 
 from playhouse.shortcuts import model_to_dict
 
-from sd_core.cache import cache_user_credentials
+from sd_core.cache import credentials
 from sd_core import db_cache
 from sd_core.launch_start import set_autostart_registry, launch_app, check_startup_status
 
@@ -627,17 +627,18 @@ class PeeweeStorage(AbstractStorage):
 
          @return True if the database was initialized False if it was
         """
+        key = None
         db_key = ""
-        cached_credentials = cache_user_credentials(CACHE_KEY)
+        cached_credentials = credentials()
         # database_changed = False  # Flag to track if the database has been changed
 
         # Returns the encrypted db_key if the cached credentials are cached.
         if cached_credentials is not None:
             db_key = cached_credentials.get("encrypted_db_key")
+            key = cached_credentials.get("user_key")
         else:
             db_key = None
-
-        key = load_key('user_key')
+            key = None 
 
         # This method will create a new database and migrate it if necessary.
         if db_key is None or key is None:
