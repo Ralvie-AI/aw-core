@@ -18,13 +18,10 @@ log_file_path = None
 def get_log_file_path() -> Optional[str]:  # pragma: no cover
     """
      Get the path to the log file. This is deprecated : use get_latest_log_file instead.
-     
-     
      @return The path to the log file or None if not found or an error occurred during reading the log file
     """
     """DEPRECATED: Use get_latest_log_file instead."""
     return log_file_path
-
 
 def setup_logging(
     name: str,
@@ -50,7 +47,7 @@ def setup_logging(
     # root use INFO 
     root_logger.setLevel(logging.INFO)
 
-    #DEBUG only SD
+    # DEBUG only SD
     logging.getLogger("sd").setLevel(level)
     logging.getLogger("sd_main").setLevel(level)
     logging.getLogger("sd_core").setLevel(level)
@@ -94,7 +91,6 @@ def setup_logging(
 
     sys.excepthook = excepthook
 
-
 def _get_latest_log_files(name, testing=False) -> List[str]:  # pragma: no cover
     """
      Get a list of log files for a given test. This is a helper to : func : ` get_log_files `.
@@ -118,7 +114,6 @@ def _get_latest_log_files(name, testing=False) -> List[str]:  # pragma: no cover
     )
     return [os.path.join(log_dir, filename) for filename in sorted(files, reverse=True)]
 
-
 def get_latest_log_file(name, testing=False) -> Optional[str]:  # pragma: no cover
     """
      Get the filename of the latest log file with the given name. This is useful when you want to read the logfile of another activity watch service.
@@ -133,19 +128,15 @@ def get_latest_log_file(name, testing=False) -> Optional[str]:  # pragma: no cov
     last_logs = _get_latest_log_files(name, testing=testing)
     return last_logs[0] if last_logs else None
 
-
 def _create_stderr_handler() -> logging.Handler:  # pragma: no cover
     """
      Create a handler that writes to stderr. This is useful for debugging and to ensure that stderr is printed to the console in a human readable format.
-     
-     
      @return A logging. Handler to use for outputting to stderr ( or logging. StreamHandler ). Note that the handler does not have a formatter
     """
     stderr_handler = logging.StreamHandler(stream=sys.stderr)
     stderr_handler.setFormatter(_create_human_formatter())
 
     return stderr_handler
-
 
 def _create_file_handler(
     name, testing=False, log_json=False
@@ -183,12 +174,9 @@ def _create_file_handler(
 
     return fh
 
-
 def _create_human_formatter() -> logging.Formatter:  # pragma: no cover
     """
      Create a formatter that prints to the console. This is useful for debugging the log messages that don't fit into the console.
-     
-     
      @return A : class : ` logging. Formatter ` with the same format as the one returned by : func : ` asctime `
     """
     return logging.Formatter(

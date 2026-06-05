@@ -10,9 +10,10 @@ import keyring
 import pam
 import requests
 
-from sd_core.cache import *
-from sd_main.manager import Manager
+from sd_core.cache import delete_password, cache_user_credentials, clear_credentials
 from sd_core.db_cache import retrieve
+from sd_core.const import CACHE_KEY
+from sd_main.manager import Manager
 
 manager = Manager()
 
@@ -21,11 +22,8 @@ os.environ.pop('HTTPS_PROXY', None)
 
 logger = logging.getLogger(__name__)
 
-CACHE_KEY = "Sundial"
-
 class VersionException(Exception):
     ...
-
 
 def _version_info_tuple() -> Tuple[int, int, int]:  # pragma: no cover
     """
@@ -35,7 +33,6 @@ def _version_info_tuple() -> Tuple[int, int, int]:  # pragma: no cover
      @return tuple of major minor micro versions of Python ( int ) or ( int int int ) depending on the
     """
     return (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
-
 
 def assert_version(required_version: Tuple[int, ...] = (3, 5)):  # pragma: no cover
     """
@@ -54,7 +51,6 @@ def assert_version(required_version: Tuple[int, ...] = (3, 5)):  # pragma: no co
         )
     logger.debug(f"Python version: {_version_info_tuple()}")
 
-
 def generate_key(service_name, user_name):
     """
      Generate a key and store it in the keyring. This is a convenience method for testing. You should use : func : ` Fernet. generate_key ` instead of this method if you don't want to use the key generation functionality.
@@ -65,7 +61,6 @@ def generate_key(service_name, user_name):
     key = Fernet.generate_key()
     key_string = base64.urlsafe_b64encode(key).decode('utf-8')
     keyring.set_password(service_name, user_name, key_string)
-
 
 # Load the secret key from a file
 def load_key(service_name):
@@ -83,7 +78,6 @@ def load_key(service_name):
     else:
         return None
 
-
 def str_to_fernet(key):
     """
      Convert a FERNET key to a string. This is used to decrypt keys that are stored in the database.
@@ -93,7 +87,6 @@ def str_to_fernet(key):
      @return The base64 - encoded key as a string. If the key is invalid it will be returned as None
     """
     return base64.urlsafe_b64decode(key.encode('utf-8'))
-
 
 # Encrypt the UUID
 def encrypt_uuid(uuid_str, key):
@@ -112,7 +105,6 @@ def encrypt_uuid(uuid_str, key):
     except Exception as e:
         print(f"encrypt_uuid error: {e}")
         return None
-
 
 # Decrypt the UUID
 def decrypt_uuid(encrypted_uuid, key):
@@ -135,7 +127,6 @@ def decrypt_uuid(encrypted_uuid, key):
         print(f"decrypt_uuid error: {e}")
         return None
 
-
 def authenticate(username, password):
     """
      Authenticate a user against the system. This is a wrapper around L { authenticateWindows } or L { authenticateMac } depending on the platform.
@@ -150,7 +141,6 @@ def authenticate(username, password):
         return authenticateWindows(username=username, password=password)
     else:
         return authenticateMac(username=username, password=password)
-
 
 def authenticateWindows(username, password):
     """
@@ -180,7 +170,6 @@ def authenticateWindows(username, password):
         print(f"Authentication error: {e}")
         return False
 
-
 def authenticateMac(username, password):
     """
      Authenticates a mac user based on username and password. This is a wrapper around pam. authenticate to catch errors that occur during authentication
@@ -201,7 +190,6 @@ def authenticateMac(username, password):
         print(f"Authentication error: {e}")
         return False
 
-
 def reset_user():
     """
      Reset user to default values and stop all modules on success or failure Args : None Return : None Purpose : Clears password and cache
@@ -212,7 +200,6 @@ def reset_user():
         stop_all_module()
     except Exception as e:
         print(f"Authentication error: {e}")
-
 
 def list_modules():
     """
@@ -254,20 +241,17 @@ def stop_all_module():
         if not module["watcher_name"] == "sd-server":
             manager.stop_modules(module["watcher_name"])
 
-
 def stop_server():
     modules = list_modules()
     # Stop all modules that have a watcher_name
     for module in modules:
         manager.stop_modules(module["watcher_name"])
 
-
 def start_all_module():
     """
      Start all sd - server modules that don't have a watcher_name. This is used to ensure that we're able to listen for changes
     """
     modules = list_modules()
-
     # Start the watcher manager.
     settings_cache_key = "settings_cache"
     cached_settings = retrieve(settings_cache_key)
@@ -277,12 +261,9 @@ def start_all_module():
             continue
         manager.start(module["watcher_name"])
 
-
 def is_internet_connected():
     """
      Checks if we can connect to the internet. This is a helper function for get_internet_connected
-
-
      @return True if we can connect to
     """
     try:
@@ -293,7 +274,6 @@ def is_internet_connected():
     except requests.ConnectionError:
         # If there's a connection error, return False
         return False
-
 
 def get_domain(url):
     if not url:
@@ -310,14 +290,12 @@ def get_domain(url):
     else:
         return parts[0]
 
-
 def get_document_title(event):
     url = event.data.get('url', '')
     title = event.data.get('title', '')
     if "sharepoint.com" in url:
         title = "OneDrive"
     return title
-
 
 def remove_more_page_suffix(text):
     # Check if "More Page" string exists in the text
