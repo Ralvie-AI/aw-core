@@ -4,13 +4,15 @@ import keyring
 import json
 from cachetools import TTLCache
 import logging
-from keyrings.alt.file import PlaintextKeyring
+
+from sd_core.const import CACHE_KEY
+# from keyrings.alt.file import PlaintextKeyring
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-keyring.set_keyring(PlaintextKeyring())
+# keyring.set_keyring(PlaintextKeyring())
 
 # Initialize a cache with a maximum size and a TTL (time-to-live)
 credentials_cache = TTLCache(maxsize=100, ttl=3600)
@@ -144,7 +146,7 @@ def get_keychain_value(service, account):
         return json.loads(result.stdout.strip())
     except json.JSONDecodeError:
         return None
-
-
-# def test_get_all():
-#     return credentials_cache
+    
+def credentials():
+    creds = cache_user_credentials(CACHE_KEY)
+    return creds

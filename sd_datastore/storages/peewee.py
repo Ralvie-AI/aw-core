@@ -1,29 +1,15 @@
+import ctypes
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import json
 import logging
 import os
-import sys
-import platform
-from datetime import datetime, timedelta, timezone
-from typing import (
-    Any,
-    Dict,
-    List,
-    Optional,
-)
 import re
-import ctypes
-from urllib.parse import unquote
-
-import pytz
-import tldextract
-from playhouse.shortcuts import model_to_dict
-
-from sd_core.cache import cache_user_credentials
-from sd_core import db_cache
-from sd_core.launch_start import set_autostart_registry, launch_app, check_startup_status
-from sd_main.manager import Manager
+import sys
 import time
+from typing import Any, Dict, List, Optional
+import uuid
+
 if sys.platform == "win32":
     _module_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
     os.add_dll_directory(_module_dir)
@@ -34,38 +20,22 @@ elif sys.platform == "darwin":
     openssl = ctypes.cdll.LoadLibrary(libsqlcipher_path + '/libcrypto.3.dylib')
     libsqlcipher = ctypes.cdll.LoadLibrary(libsqlcipher_path + '/libsqlcipher.0.dylib')
 
-from sd_core.util import decrypt_uuid, get_document_title, get_domain, load_key, remove_more_page_suffix, \
-    start_all_module, stop_all_module
-import keyring
 import iso8601
-from sd_core.dirs import get_data_dir
-from sd_core.models import Event
+import peewee
+from peewee import (AutoField, BooleanField, CharField, DatabaseProxy, DateTimeField, DecimalField, DoesNotExist, ForeignKeyField, IntegerField, Model, TextField, UUIDField)
 from playhouse.migrate import SqliteMigrator, migrate
+from playhouse.shortcuts import model_to_dict
 from playhouse.sqlcipher_ext import SqlCipherDatabase
 
-import peewee
-from peewee import (
-    AutoField,
-    CharField,
-    DateTimeField,
-    DecimalField,
-    BooleanField,
-    TextField,
-    UUIDField,
-    ForeignKeyField,
-    IntegerField,
-    Model,
-    DatabaseProxy,
-    DoesNotExist,
-
-)
+from sd_core import db_cache
+from sd_core.cache import credentials
+from sd_core.dirs import get_data_dir
+from sd_core.launch_start import check_startup_status, launch_app, set_autostart_registry
+from sd_core.models import Event
+from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix, start_all_module, stop_all_module)
+from sd_main.manager import Manager
 
 from .abstract import AbstractStorage
-from cryptography.fernet import Fernet
-import cryptocode
-import keyring
-from peewee import DoesNotExist
-import uuid #UUID
 
 logging.basicConfig(encoding='utf-8')
 
@@ -617,17 +587,18 @@ class PeeweeStorage(AbstractStorage):
 
          @return True if the database was initialized False if it was
         """
+        key = None
         db_key = ""
-        cached_credentials = cache_user_credentials(CACHE_KEY)
+        cached_credentials = credentials()
         database_changed = False  # Flag to track if the database has been changed
 
         # Returns the encrypted db_key if the cached credentials are cached.
         if cached_credentials is not None:
             db_key = cached_credentials.get("encrypted_db_key")
+            key = cached_credentials.get("user_key")
         else:
             db_key = None
-
-        key = load_key('user_key')
+            key = None
 
         # This method will create a new database and migrate it if necessary.
         if db_key is None or key is None:
@@ -656,7 +627,7 @@ class PeeweeStorage(AbstractStorage):
             user_email = cached_credentials.get("email")
             company_id = cached_credentials.get("companyId")
             print(password)
-            logger.debug(f"DB password {password}")
+            # logger.debug(f"DB password {password}")
             # Return true if password is not password
             if not password:
                 return False
