@@ -20,6 +20,6 @@ STATUS_SYNC_FIRST_TIME = 30 # 3 seconds
 
 # 1 set up for configurable server setting
 # 0 not set up for configurable server setting
-CONFIG_SERVER = 
+CONFIG_SERVER = 0
 
 PUBLIC_KEY = os.path.join(os.environ['LOCALAPPDATA'], 'Sundial', 'Sundial', 'sd-server', '{email}-{company_id}-public.pem')
