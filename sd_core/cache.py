@@ -53,7 +53,7 @@ def update_password(service, password):
 
 def keychain_item_exists(service):
     """Check if a keychain item exists in the system's secure storage."""
-    logger.info(f"Checking if a keychain item exists for service {service}.")
+    # logger.info(f"Checking if a keychain item exists for service {service}.")
     if is_macos():
         command = ['security', 'find-generic-password', '-s', service, '-a', service]
         try:
@@ -75,7 +75,7 @@ def delete_password(service):
             keyring.delete_password(service, service)
             return "Success"
     else:
-        logger.warning("Keychain item not found.")
+        # logger.warning("Keychain item not found.")
         return "Keychain item not found"
 
 def get_password(service):
