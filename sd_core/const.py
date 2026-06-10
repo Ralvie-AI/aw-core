@@ -14,7 +14,7 @@ LOCAL_HOST = "http://localhost:7600/api"
 SYNC_TIME = 600 # 10 minutes
 SCREEN_SHOT_SYNC_TIME = 60 # 1  minutes
 STATUS_SYNC_TIME = 180 # 3 minutes
-STATUS_SYNC_FIRST_TIME = 30 # 3 seconds
+STATUS_SYNC_FIRST_TIME = 30 # 30 seconds
 
 
 MAX_RETRIES = 3
