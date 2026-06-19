@@ -404,3 +404,10 @@ def inspect_function():
     caller_name = caller_frame.function
 
     logger.info(f"Function called from {caller_name} in {caller_filename} at line {caller_line}")
+
+
+if __name__ == '__main__':
+    db_key ="test"
+    key = "hello"
+    password = decrypt_uuid(db_key, key)
+    print(password)
