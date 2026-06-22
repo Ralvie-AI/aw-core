@@ -18,7 +18,10 @@ from playhouse.shortcuts import model_to_dict
 
 from sd_core.cache import credentials
 from sd_core import db_cache
-from sd_core.launch_start import set_autostart_registry, launch_app, check_startup_status
+from sd_core.launch_start import (set_autostart_registry, 
+                                  launch_app, 
+                                  check_startup_status)
+from sd_core.const import DEFAULT_WEEKEND_SETTINGS
 
 if sys.platform == "win32":
     _module_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
@@ -33,8 +36,12 @@ elif sys.platform == "darwin":
 # from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix,
 #                                 start_all_module, stop_all_module, DEVELOPMENT_MODE)
 
-from sd_core.const import DEVELOPMENT_MODE, CACHE_KEY, SETTINGS_CACHE_KEY, LOGGING_VERBOSE
-from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix)
+from sd_core.const import (SETTINGS_CACHE_KEY, 
+                           LOGGING_VERBOSE, 
+                           APPLICATION_CACHE_KEY)
+from sd_core.util import (decrypt_uuid, 
+                          get_domain, 
+                          remove_more_page_suffix)
 import iso8601
 from sd_core.dirs import get_data_dir
 from sd_core.models import Event
@@ -77,7 +84,6 @@ db_proxy = DatabaseProxy()
 _db = None
 
 LATEST_VERSION = 2
-application_cache_key = "application_cache"
 
 MODEL_NAME_FIELDS = [
     {
@@ -545,23 +551,10 @@ def format_timezone_offset(offset):
 
 def setup_weekday_settings():
     try:
-        # Define default settings for weekdays
-        default_weekday_settings = {
-            "Monday": True,
-            "Tuesday": True,
-            "Wednesday": True,
-            "Thursday": True,
-            "Friday": True,
-            "Saturday": True,
-            "Sunday": True,
-            "starttime": "00:00:00",
-            "endtime": "23:59:59"
-        }
-
         # Check if the weekday settings already exist in the database
         existing_weekday_instance = SettingsModel.get_or_none(code="weekdays_schedule")
         if not existing_weekday_instance:
-            SettingsModel.from_settings(code="weekdays_schedule", value=default_weekday_settings).save()
+            SettingsModel.from_settings(code="weekdays_schedule", value=DEFAULT_WEEKEND_SETTINGS).save()
             print("Weekday schedule settings added successfully.")
 
     except Exception as e:
@@ -711,7 +704,7 @@ class PeeweeStorage(AbstractStorage):
 
             ensure_default_settings()
             setup_weekday_settings()
-            db_cache.store(application_cache_key, self.retrieve_application_names())
+            db_cache.store(APPLICATION_CACHE_KEY, self.retrieve_application_names())
             db_cache.store(SETTINGS_CACHE_KEY, self.retrieve_all_settings())
             # check_startup_status()
             # Stop all modules that have been changed.
@@ -1579,7 +1572,7 @@ class PeeweeStorage(AbstractStorage):
             # Convert the query results to a list of dictionaries
             application_details['url'] = [{'url': result.url, 'is_blocked': result.is_blocked}
                                           for result in url_query_results]
-            db_cache.update(application_cache_key, application_details)
+            db_cache.update(APPLICATION_CACHE_KEY, application_details)
             return application_details  # Return the list of application details
         except Exception as e:
             logger.error(f"An unexpected error occurred while retrieving application names: {e}")
@@ -1623,7 +1616,7 @@ class PeeweeStorage(AbstractStorage):
             # Convert the query results to a list of dictionaries
             application_details['url'] = [{'url': result.url, 'is_blocked': result.is_blocked}
                                           for result in url_query_results]
-            db_cache.update(application_cache_key, application_details)
+            db_cache.update(APPLICATION_CACHE_KEY, application_details)
             return application_details  # Return the list of application details
         except Exception as e:
             logger.error(f"An unexpected error occurred while retrieving application names: {e}")

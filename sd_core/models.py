@@ -10,10 +10,9 @@ from typing import (
     Union,
 )
 import re
-from urllib.parse import unquote
+
 from sd_core.util import get_domain, remove_more_page_suffix
 import iso8601
-from tldextract import tldextract
 
 logger = logging.getLogger(__name__)
 
