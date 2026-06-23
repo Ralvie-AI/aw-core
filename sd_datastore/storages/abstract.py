@@ -359,3 +359,8 @@ class AbstractStorage(metaclass=ABCMeta):
     @abstractmethod
     def get_last_row_today(self, screenshot_create_at):
         raise NotImplementedError
+
+    @abstractmethod
+    def get_screenshot_by_id(self, id):
+        raise NotImplementedError
+    

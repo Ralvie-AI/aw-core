@@ -251,6 +251,9 @@ class Datastore:
     
     def update_ocr_text(self, screenshot_id, ocr_text):
         return self.storage_strategy.update_ocr_text(screenshot_id, ocr_text)
+    
+    def get_screenshot_by_id(self, id):
+        return self.storage_strategy.get_screenshot_by_id(id)
 
 
 class Bucket:

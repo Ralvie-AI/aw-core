@@ -1660,6 +1660,14 @@ class PeeweeStorage(AbstractStorage):
               .limit(1))
         return screenshot_data
     
+    def get_screenshot_by_id(self, id):
+        screenshot = ScreenShotModel.get_or_none(ScreenShotModel.id == id)
+
+        if screenshot:
+            return screenshot
+        else:
+            return None
+    
     def get_events_timestamp_range(self, start, end):
         # logger.info(f"start => {start} => type => {type(start)}")
         # logger.info(f"start => {end} => type => {type(end)}")
