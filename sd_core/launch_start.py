@@ -4,6 +4,7 @@ import sys
 import logging
 
 from sd_core.os_util import get_window_version
+from sd_core.const import DEVELOPMENT_MODE
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -63,8 +64,6 @@ def check_startup_status():
         return get_login_items()
     elif sys.platform == "win32":
 
-        from sd_qt.sd_desktop.const import DEVELOPMENT_MODE    
-
         if DEVELOPMENT_MODE != 0:
             if get_window_version() == 10:
 
@@ -96,8 +95,7 @@ def set_autostart_registry(autostart: bool = True) -> bool:
     """
 
     if sys.platform == "win32":
-
-        from sd_qt.sd_desktop.const import DEVELOPMENT_MODE
+        
         from sd_qt.sd_desktop.util import get_app_name_exe        
 
         if DEVELOPMENT_MODE != 0:
