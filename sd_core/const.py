@@ -6,7 +6,7 @@ import os
 DEVELOPMENT_MODE = 1
 STAGING = 0
 INTERNAL = 0
-LOGGING_VERBOSE = 1    # to log verbose set 1
+LOGGING_VERBOSE = 0    # to log verbose set 1
 CACHE_KEY = "Sundial"
 SETTINGS_CACHE_KEY = "settings_cache"
 APPLICATION_CACHE_KEY = "application_cache"

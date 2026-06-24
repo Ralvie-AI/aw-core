@@ -4,22 +4,19 @@ import sys
 import logging
 
 from sd_core.os_util import get_window_version
+from sd_core.util import get_running_path
 from sd_core.const import DEVELOPMENT_MODE
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-if sys.platform == "win32":
-    import winreg
-
 # Define the application paths based on the platform
 if sys.platform == "win32":
+    import winreg
     # Set the working directory to the module directory
-    _module_dir = os.path.dirname(os.path.dirname(
-        os.path.dirname(os.path.realpath(__file__))))
-    os.chdir(_module_dir)
-    app_path = os.path.join(_module_dir, 'sd-main.exe')
+    running_path = get_running_path()
+    app_path = os.path.join(running_path, 'sd-main.exe')
     app_name = "Sundial"
 elif sys.platform == "darwin":
     app_path = "/Applications/Sundial.app"
@@ -96,13 +93,9 @@ def set_autostart_registry(autostart: bool = True) -> bool:
 
     if sys.platform == "win32":
         
-        from sd_qt.sd_desktop.util import get_app_name_exe        
-
         if DEVELOPMENT_MODE != 0:
        
             if get_window_version() == 10:
-
-                app_path = get_app_name_exe()
                 key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
                 logger.info(f"set_autostart_registry set_autostart_registry app_path {app_path}")
                 
