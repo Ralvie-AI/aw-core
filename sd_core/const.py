@@ -40,3 +40,5 @@ DEFAULT_WEEKEND_SETTINGS = {
     "starttime": "00:00:00",
     "endtime": "23:59:59"
 }
+
+SD_SERVER = "sd-server"
