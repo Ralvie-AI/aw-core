@@ -661,7 +661,7 @@ class PeeweeStorage(AbstractStorage):
             company_id = cached_credentials.get("companyId")
 
             if LOGGING_VERBOSE == 1:
-                print(password)
+                logger.info(f"password => {password}")
                 
             # Return true if password is not password
             if not password:
@@ -1637,13 +1637,12 @@ class PeeweeStorage(AbstractStorage):
         return latest_event 
     
     def save_screenshot(self, data) -> None:
-        # logger.info(f"save screenshot => {data}")
 
-        # event_uuid = data.pop('event')
-        # event_instance = EventModel.get(EventModel.eventId == event_uuid) # Assuming EventModel has eventId
-        # data['event'] = event_instance # Assign the instance
-        screenshot = ScreenShotModel(**data)        
-        print("screenshot ", screenshot)
+        screenshot = ScreenShotModel(**data)
+
+        if LOGGING_VERBOSE == 1:
+            logger.info(f"screenshot => {screenshot}")
+
         screenshot.save()
 
     def get_latest_screenshot(self):

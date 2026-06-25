@@ -14,12 +14,9 @@ APPLICATION_CACHE_KEY = "application_cache"
 LOCAL_HOST = "http://localhost:7600/api"
 
 SYNC_TIME = 600 # 10 minutes
-SCREEN_SHOT_SYNC_TIME = 120 # 2  minutes
+SCREEN_SHOT_SYNC_TIME = 60 # 1 minute
 OCR_SLEEP_TIME = 30 # seconds
 
-
-MAX_RETRIES = 3
-DELAY_SECONDS = 3  # wait before retry
 
 # 1 set up for configurable server setting
 # 0 not set up for configurable server setting
