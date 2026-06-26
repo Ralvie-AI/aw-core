@@ -686,7 +686,10 @@ class PeeweeStorage(AbstractStorage):
             db_proxy.initialize(_db)
             self.db = _db
             self.db.init(filepath)
-            logger.info(f"Using database file: {filepath}")
+
+            if LOGGING_VERBOSE == 1:
+                logger.info(f"Using database file: {filepath}")
+                
             self.db.connect()
 
             self.create_tables()
