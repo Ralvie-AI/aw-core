@@ -1,3 +1,4 @@
+import os
 import subprocess
 import logging
 import json
@@ -30,6 +31,29 @@ def run_keychain_command(command):
     except subprocess.CalledProcessError as e:
         logger.error(f"Keychain command failed. Error: {e}")
         return False
+    
+
+def add_password_new(service, password):
+    """Add or update a password in the system's secure storage."""
+    logger.info(f"Adding/updating password for service {service}.")
+
+    credentials_cache.clear()
+
+    if  not service in password.keys():
+        password.update({service: True})
+
+    credentials_cache[service] = password
+    
+    password = json.dumps(password)
+    
+    if IS_MACOS:
+        command = ['security', 'add-generic-password', '-s', service, '-a', service, '-w', password, '-U']
+        return run_keychain_command(command)
+    else:
+        from sd_core.util import get_running_path
+        from sd_core.secure import encrypt_json_to_file
+        file_path = os.path.join(get_running_path(), "secure_config.bin")
+        encrypt_json_to_file(file_path, password)
 
 def add_password(service, password):
     """Add or update a password in the system's secure storage."""
@@ -51,6 +75,20 @@ def add_password(service, password):
         keyring.set_password(service, service, password)
         return True
 
+def keychain_item_exists_new(service):
+    """Check if a keychain item exists in the system's secure storage."""    
+    if IS_MACOS:
+        command = ['security', 'find-generic-password', '-s', service, '-a', service]
+        return run_keychain_command(command)
+    else:
+        from sd_core.util import get_running_path
+        file_secure = os.path.join(get_running_path(), "secure_config.bin")
+        if os.path.exists(file_secure):
+            return True        
+        else:
+            logger.info(f"There is no keychain item exists for service {service}.")
+            return False 
+
 def keychain_item_exists(service):
     """Check if a keychain item exists in the system's secure storage."""    
     if IS_MACOS:
@@ -62,6 +100,26 @@ def keychain_item_exists(service):
         else:
             logger.info(f"There is no keychain item exists for service {service}.")
             return False 
+        
+def delete_password_new(service):
+    """Delete a password from the system's secure storage if it exists."""
+    logger.info(f"Deleting password for service {service}.")
+
+    credentials_cache.clear()
+
+    if keychain_item_exists(service):
+        if IS_MACOS:
+            command = ['security', 'delete-generic-password', '-s', service, '-a', service]
+            return "Success" if run_keychain_command(command) else "Failed"
+        else:
+            from sd_core.util import get_running_path
+            file_secure = os.path.join(get_running_path(), "secure_config.bin")
+            if os.path.exists(file_secure):
+                os.remove(file_secure)
+            return "Success"
+    else:
+        logger.warning("Keychain item not found.")
+        return "Keychain item not found" 
 
 def delete_password(service):
     """Delete a password from the system's secure storage if it exists."""
@@ -78,7 +136,25 @@ def delete_password(service):
             return "Success"
     else:
         logger.warning("Keychain item not found.")
-        return "Keychain item not found"    
+        return "Keychain item not found" 
+
+def get_password_new(service):    
+    """Retrieve a password from the system's secure storage."""
+    logger.info(f"Retrieving password for service {service}.")
+    if IS_MACOS:
+        command = ['security', 'find-generic-password', '-s', service, '-a', service, '-w']
+        try:
+            result = subprocess.run(command, check=True, text=True, capture_output=True)
+            return result.stdout.strip()
+        except subprocess.CalledProcessError:
+            return None
+    else:        
+        from sd_core.util import get_running_path
+        from sd_core.secure import decrypt_json_from_file
+        file_secure = os.path.join(get_running_path(), "secure_config.bin")
+        if os.path.exists(file_secure):
+            return decrypt_json_from_file(file_secure)
+        return None 
 
 def get_password(service):
     """Retrieve a password from the system's secure storage."""

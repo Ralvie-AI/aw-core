@@ -407,7 +407,38 @@ def inspect_function():
 
 
 if __name__ == '__main__':
-    db_key ="test"
-    key = "hello"
-    password = decrypt_uuid(db_key, key)
-    print(password)
+    from tzlocal import get_localzone
+    # db_key ="Z0FBQUFBQnFOUVVUV1FNTHZ1ZWlvTWs4eTFQSlIyTllHRmJDOFZUQ3FBSEVPNFdFYS1KWG1ValBtNVdrY2VtUzZIR1BKQjZmZ2FOTFl4WjVlNW9OVFVHbXV3eTMwVHZNX2pMWTFNLVQtZGF6QWx0OGRNRzk3bTBpdkYzSjdSNEprNC1CUHQ4c0RITjM="
+    # key = "rB0VhngH3aF8Cu3dKQarJs5fOGotnEd0qu7YUgyuxIA="
+    # password = decrypt_uuid(db_key, key)
+    # print(password)
+
+    from datetime import datetime, timezone
+
+    # Get the current UTC time with timezone awareness
+    utc_now = datetime.now(timezone.utc)
+
+    print(utc_now, type(utc_now))
+    utc_time_str = "2026-06-25 04:24:07.056764+00:00"
+    # 1. Parse the UTC string
+    utc_time_str = "2026-06-25 04:24:07.056764+00:00"
+    utc_dt = datetime.fromisoformat(utc_time_str)
+
+    # 2. Get the local time zone dynamically from your OS
+    local_tz = get_localzone() 
+
+    # 3. Convert and format
+    local_dt = utc_dt.astimezone(local_tz)
+    formatted_local_time = local_dt.strftime("%Y-%m-%d %H:%M:%S")
+
+    print(f"Detected Zone: {local_tz}")
+    print(f"Formatted Time: {formatted_local_time} => type => {type(formatted_local_time)}")
+    # # r = convert_datetime_string(t)
+    # utc_dt = datetime.fromisoformat(utc_time_str)
+    # local_tz = get_localzone()
+    # local_dt = r.astimezone(local_tz)
+    # formatted_local_time = local_dt.strftime("%Y-%m-%d %H:%M:%S")
+    # print(f"Detected Zone: {local_tz}")
+    # print(f"Formatted Time: {formatted_local_time}")
+    # print(r, type(r))
+    # Output: 2026-06-25 02:03:27.123456+00:00
