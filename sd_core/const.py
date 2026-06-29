@@ -39,3 +39,5 @@ DEFAULT_WEEKEND_SETTINGS = {
 }
 
 SD_SERVER = "sd-server"
+
+PROFILE_FILE = "profile.bin"

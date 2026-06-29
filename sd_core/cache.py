@@ -6,7 +6,7 @@ import json
 from cachetools import TTLCache
 
 from sd_core.os_util import is_macos
-from sd_core.const import CACHE_KEY, LOGGING_VERBOSE
+from sd_core.const import CACHE_KEY, LOGGING_VERBOSE, PROFILE_FILE
 
 IS_MACOS = is_macos()
 
@@ -49,7 +49,7 @@ def add_password(service, password):
     else:
         from sd_core.util import get_running_path
         from sd_core.secure import encrypt_json_to_file
-        file_path = os.path.join(get_running_path(), "secure_config.bin")
+        file_path = os.path.join(get_running_path(), PROFILE_FILE)
         encrypt_json_to_file(file_path, password)
 
 def keychain_item_exists(service):
@@ -59,7 +59,7 @@ def keychain_item_exists(service):
         return run_keychain_command(command)
     else:
         from sd_core.util import get_running_path
-        file_secure = os.path.join(get_running_path(), "secure_config.bin")
+        file_secure = os.path.join(get_running_path(), PROFILE_FILE)
         if os.path.exists(file_secure):
             return True        
         else:
@@ -79,7 +79,7 @@ def delete_password(service):
             return "Success" if run_keychain_command(command) else "Failed"
         else:
             from sd_core.util import get_running_path
-            file_secure = os.path.join(get_running_path(), "secure_config.bin")
+            file_secure = os.path.join(get_running_path(), PROFILE_FILE)
             if os.path.exists(file_secure):
                 os.remove(file_secure)
             return "Success"
@@ -100,7 +100,7 @@ def get_password(service):
     else:        
         from sd_core.util import get_running_path
         from sd_core.secure import decrypt_json_from_file
-        file_secure = os.path.join(get_running_path(), "secure_config.bin")
+        file_secure = os.path.join(get_running_path(), PROFILE_FILE)
         if os.path.exists(file_secure):
             return decrypt_json_from_file(file_secure)
         return None 
