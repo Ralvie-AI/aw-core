@@ -12,7 +12,6 @@ from typing import Tuple
 
 import requests
 from cryptography.fernet import Fernet
-import keyring
 import pam
 
 from sd_core.cache import credentials, delete_password
@@ -54,18 +53,6 @@ def assert_version(required_version: Tuple[int, ...] = (3, 5)):  # pragma: no co
             ).format(required_version)
         )
     logger.debug(f"Python version: {_version_info_tuple()}")
-
-
-def generate_key(service_name, user_name):
-    """
-     Generate a key and store it in the keyring. This is a convenience method for testing. You should use : func : ` Fernet. generate_key ` instead of this method if you don't want to use the key generation functionality.
-
-     @param service_name - The name of the service that will be used for the key generation.
-     @param user_name - The name of the user that will be used for the key generation
-    """
-    key = Fernet.generate_key()
-    key_string = base64.urlsafe_b64encode(key).decode('utf-8')
-    keyring.set_password(service_name, user_name, key_string)
 
 
 # Load the secret key from a file

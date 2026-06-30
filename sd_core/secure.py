@@ -1,5 +1,6 @@
 import os 
 import ctypes
+import logging
 from ctypes import wintypes
 import json
 
@@ -7,6 +8,8 @@ import json
 from sd_core.salt_file import MY_SALT
 # Load the Windows Cryptographic API DLL
 crypt32 = ctypes.windll.crypt32
+
+logger = logging.getLogger(__name__)
 
 class DATA_BLOB(ctypes.Structure):
     _fields_ = [
@@ -75,8 +78,10 @@ def decrypt_json_from_file(filepath: str) -> dict:
     )
     
     if not success:
-        raise ctypes.WinError("Decryption failed. Check if your salt key or Windows user account is correct.")
-        
+        err = ctypes.WinError()
+        logger.error("Failed to decrypt : %s", err)
+        return None       
+
     try:
         # 3. Parse the decrypted bytes back into a Python dictionary
         decrypted_bytes = bytes(ctypes.string_at(blob_out.pbData, blob_out.cbData))
@@ -87,17 +92,13 @@ def decrypt_json_from_file(filepath: str) -> dict:
 
 # --- Verification Example ---
 if __name__ == "__main__":
-    from sd_core.util import get_running_path
     # Your sensitive application state or configs
     config_data = {
         "app_id": "monitor_01",
         "api_key": "live_pk_51Nx82FkL9z...",
         "db_encryption_key": "sqlcipher_master_passphrase_xyz",        
-    }
-    
-    # The application salt string
-    MY_SALT = "AppSpecific_Static_Or_Generated_Entropy_String"
-    FILENAME = os.path.join(get_running_path(),"secure_config.bin")
+    }   
+    FILENAME = "secure_config.bin"
     
     # Encrypt and save
     encrypt_json_to_file(FILENAME, config_data)

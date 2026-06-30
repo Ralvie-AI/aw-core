@@ -4,7 +4,7 @@ import os
 # DEVELOPMENT_MODE = 1 is for production.
 
 DEVELOPMENT_MODE = 1
-STAGING = 0
+STAGING = 1
 INTERNAL = 0
 LOGGING_VERBOSE = 0    # to log verbose set 1
 CACHE_KEY = "Sundial"
