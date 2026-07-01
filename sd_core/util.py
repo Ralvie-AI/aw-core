@@ -393,6 +393,15 @@ def inspect_function():
     logger.info(f"Function called from {caller_name} in {caller_filename} at line {caller_line}")
 
 
+def check_process_running(process_name):
+    import psutil
+    
+    """Check if a process with the given name is running."""
+    for process in psutil.process_iter(['name']):
+        if process.info['name'].lower() == process_name.lower():
+            return True
+    return False
+
 if __name__ == '__main__':
     from tzlocal import get_localzone
     # db_key ="Z0FBQUFBQnFOUVVUV1FNTHZ1ZWlvTWs4eTFQSlIyTllHRmJDOFZUQ3FBSEVPNFdFYS1KWG1ValBtNVdrY2VtUzZIR1BKQjZmZ2FOTFl4WjVlNW9OVFVHbXV3eTMwVHZNX2pMWTFNLVQtZGF6QWx0OGRNRzk3bTBpdkYzSjdSNEprNC1CUHQ4c0RITjM="
