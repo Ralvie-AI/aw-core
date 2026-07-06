@@ -497,6 +497,7 @@ class ScreenShotModel(BaseModel):
     object_key = TextField(null=True) # The objectKey obtained from the pre-signed URL will be mapped to
     created_at = DateTimeField(index=True, default=lambda: datetime.now(timezone.utc))
     local_capture_at = DateTimeField(default=datetime.now, null=True)
+    is_ocr_text_enabled = BooleanField(default=True)
 
     def json(self):
         """
