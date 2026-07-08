@@ -5,10 +5,9 @@ import json
 
 from cachetools import TTLCache
 
-from sd_core.os_util import is_macos
-from sd_core.const import CACHE_KEY, LOGGING_VERBOSE, PROFILE_FILE
 
-IS_MACOS = is_macos()
+from sd_core.const import CACHE_KEY, LOGGING_VERBOSE, PROFILE_FILE, DB_KEY_FILE
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -41,30 +40,34 @@ def add_password(service, password):
 
     credentials_cache[service] = password
     
-    password = json.dumps(password)
+    password = json.dumps(password)    
+
+    from sd_core.util import get_running_path
+    from sd_core.secure import encrypt_json_to_file
+    file_path = os.path.join(get_running_path(), PROFILE_FILE)   
     
-    if IS_MACOS:
-        command = ['security', 'add-generic-password', '-s', service, '-a', service, '-w', password, '-U']
-        return run_keychain_command(command)
-    else:
-        from sd_core.util import get_running_path
-        from sd_core.secure import encrypt_json_to_file
-        file_path = os.path.join(get_running_path(), PROFILE_FILE)
-        encrypt_json_to_file(file_path, password)
+    encrypt_json_to_file(file_path, password)
+
+
+def add_db_key(password):
+    """Add or update a password in the system's secure storage."""
+    logger.info(f"Adding db key file.")     
+
+    from sd_core.util import get_running_path
+    from sd_core.secure import encrypt_json_to_file
+    file_path = os.path.join(get_running_path(), DB_KEY_FILE)
+    encrypt_json_to_file(file_path, password)
 
 def keychain_item_exists(service):
     """Check if a keychain item exists in the system's secure storage."""    
-    if IS_MACOS:
-        command = ['security', 'find-generic-password', '-s', service, '-a', service]
-        return run_keychain_command(command)
+    
+    from sd_core.util import get_running_path
+    file_secure = os.path.join(get_running_path(), PROFILE_FILE)
+    if os.path.exists(file_secure):
+        return True        
     else:
-        from sd_core.util import get_running_path
-        file_secure = os.path.join(get_running_path(), PROFILE_FILE)
-        if os.path.exists(file_secure):
-            return True        
-        else:
-            logger.info(f"There is no keychain item exists for service {service}.")
-            return False 
+        logger.info(f"There is no keychain item exists for service {service}.")
+        return False 
 
      
 def delete_password(service):
@@ -73,16 +76,12 @@ def delete_password(service):
 
     credentials_cache.clear()
 
-    if keychain_item_exists(service):
-        if IS_MACOS:
-            command = ['security', 'delete-generic-password', '-s', service, '-a', service]
-            return "Success" if run_keychain_command(command) else "Failed"
-        else:
-            from sd_core.util import get_running_path
-            file_secure = os.path.join(get_running_path(), PROFILE_FILE)
-            if os.path.exists(file_secure):
-                os.remove(file_secure)
-            return "Success"
+    if keychain_item_exists(service):       
+        from sd_core.util import get_running_path
+        file_secure = os.path.join(get_running_path(), PROFILE_FILE)
+        if os.path.exists(file_secure):
+            os.remove(file_secure)
+        return "Success"
     else:
         logger.warning("Keychain item not found.")
         return "Keychain item not found" 
@@ -90,20 +89,13 @@ def delete_password(service):
 def get_password(service):    
     """Retrieve a password from the system's secure storage."""
     logger.info(f"Retrieving password for service {service}.")
-    if IS_MACOS:
-        command = ['security', 'find-generic-password', '-s', service, '-a', service, '-w']
-        try:
-            result = subprocess.run(command, check=True, text=True, capture_output=True)
-            return result.stdout.strip()
-        except subprocess.CalledProcessError:
-            return None
-    else:        
-        from sd_core.util import get_running_path
-        from sd_core.secure import decrypt_json_from_file
-        file_secure = os.path.join(get_running_path(), PROFILE_FILE)
-        if os.path.exists(file_secure):
-            return decrypt_json_from_file(file_secure)
-        return None 
+       
+    from sd_core.util import get_running_path
+    from sd_core.secure import decrypt_json_from_file
+    file_secure = os.path.join(get_running_path(), PROFILE_FILE)
+    if os.path.exists(file_secure):
+        return decrypt_json_from_file(file_secure)
+    return None 
 
 
 def store_credentials(service, credentials):
