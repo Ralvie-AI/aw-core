@@ -620,14 +620,21 @@ class PeeweeStorage(AbstractStorage):
 
          @return True if the database was initialized False if it was
         """
+        from sd_core.util import get_running_path
+        from sd_core.secure import decrypt_json_from_file
+        from sd_core.const import DB_KEY_FILE
+        file_secure = os.path.join(get_running_path(), DB_KEY_FILE)
+        db_key = None 
+
+        if os.path.exists(file_secure):
+            db_key =  decrypt_json_from_file(file_secure)
         key = None
-        db_key = ""
         cached_credentials = credentials()
         # database_changed = False  # Flag to track if the database has been changed
 
         # Returns the encrypted db_key if the cached credentials are cached.
         if cached_credentials is not None:
-            db_key = cached_credentials.get("encrypted_db_key")
+            # db_key = cached_credentials.get("encrypted_db_key")
             key = cached_credentials.get("user_key")
         else:
             db_key = None
@@ -656,12 +663,18 @@ class PeeweeStorage(AbstractStorage):
 
             return False
         else:
-            password = decrypt_uuid(db_key, key)
+
+            if LOGGING_VERBOSE == 1:
+                logger.info(f"db_key => {db_key}")
+                
+            password = decrypt_uuid(db_key.get("encrypted_db_key"), key)
             user_email = cached_credentials.get("email")
             company_id = cached_credentials.get("companyId")
 
+            del db_key
+
             if LOGGING_VERBOSE == 1:
-                logger.info(f"password => {password}")
+                logger.info(f"password => {password}")                
                 
             # Return true if password is not password
             if not password:
@@ -683,6 +696,9 @@ class PeeweeStorage(AbstractStorage):
             #     if filepath != os.path.join(data_dir, filename):
             #         database_changed = True
             _db = SqlCipherDatabase(None, passphrase=password)
+            
+            del password
+
             db_proxy.initialize(_db)
             self.db = _db
             self.db.init(filepath)
@@ -721,7 +737,6 @@ class PeeweeStorage(AbstractStorage):
             db_cache.delete(SETTINGS_CACHE_KEY)
             db_cache.store(SETTINGS_CACHE_KEY, self.retrieve_all_settings())
             return True
-
 
 
     def update_bucket_keys(self) -> None:

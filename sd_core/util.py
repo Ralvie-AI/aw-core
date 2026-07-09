@@ -402,6 +402,12 @@ def check_process_running(process_name):
             return True
     return False
 
+def db_file_exists():
+    from sd_core.util import get_running_path
+    from sd_core.const import DB_KEY_FILE
+    db_file = os.path.join(get_running_path(), DB_KEY_FILE)
+    return os.path.exists(db_file)
+
 if __name__ == '__main__':
     from tzlocal import get_localzone
     # db_key ="Z0FBQUFBQnFOUVVUV1FNTHZ1ZWlvTWs4eTFQSlIyTllHRmJDOFZUQ3FBSEVPNFdFYS1KWG1ValBtNVdrY2VtUzZIR1BKQjZmZ2FOTFl4WjVlNW9OVFVHbXV3eTMwVHZNX2pMWTFNLVQtZGF6QWx0OGRNRzk3bTBpdkYzSjdSNEprNC1CUHQ4c0RITjM="

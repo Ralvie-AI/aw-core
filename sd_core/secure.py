@@ -1,9 +1,7 @@
-import os 
-import ctypes
+import json 
 import logging
+import ctypes
 from ctypes import wintypes
-import json
-
 
 from sd_core.salt_file import MY_SALT
 # Load the Windows Cryptographic API DLL
