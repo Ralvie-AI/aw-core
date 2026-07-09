@@ -1,10 +1,8 @@
 import os
-import subprocess
 import logging
 import json
 
 from cachetools import TTLCache
-
 
 from sd_core.const import CACHE_KEY, LOGGING_VERBOSE, PROFILE_FILE, DB_KEY_FILE
 
@@ -17,17 +15,6 @@ logger = logging.getLogger(__name__)
 # Initialize a cache with a maximum size and a TTL (time-to-live)
 # credentials_cache = TTLCache(maxsize=10, ttl=21600)     # 6 hours
 credentials_cache = TTLCache(maxsize=10, ttl=3600)     # 1 hour
-
-def run_keychain_command(command):
-    """Run a command for macOS Keychain."""
-    try:
-        logger.info(f"Running keychain command: {' '.join(command)}")
-        subprocess.run(command, check=True, text=True, capture_output=True)
-        return True
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Keychain command failed. Error: {e}")
-        return False
-    
 
 def add_password(service, password):
     """Add or update a password in the system's secure storage."""
@@ -56,19 +43,21 @@ def add_db_key(password):
     from sd_core.util import get_running_path
     from sd_core.secure import encrypt_json_to_file
     file_path = os.path.join(get_running_path(), DB_KEY_FILE)
-    encrypt_json_to_file(file_path, password)
+    db_key = {"encrypted_db_key": password}
+    encrypt_json_to_file(file_path, db_key)
+    del db_key
 
 def keychain_item_exists(service):
     """Check if a keychain item exists in the system's secure storage."""    
     
     from sd_core.util import get_running_path
-    file_secure = os.path.join(get_running_path(), PROFILE_FILE)
-    if os.path.exists(file_secure):
+    profile = os.path.join(get_running_path(), PROFILE_FILE)
+    db_file = os.path.join(get_running_path(), DB_KEY_FILE)
+    if os.path.exists(profile) and os.path.exists(db_file):
         return True        
     else:
         logger.info(f"There is no keychain item exists for service {service}.")
-        return False 
-
+        return False
      
 def delete_password(service):
     """Delete a password from the system's secure storage if it exists."""
@@ -79,6 +68,10 @@ def delete_password(service):
     if keychain_item_exists(service):       
         from sd_core.util import get_running_path
         file_secure = os.path.join(get_running_path(), PROFILE_FILE)
+        if os.path.exists(file_secure):
+            os.remove(file_secure)
+        
+        file_secure = os.path.join(get_running_path(), DB_KEY_FILE)
         if os.path.exists(file_secure):
             os.remove(file_secure)
         return "Success"
