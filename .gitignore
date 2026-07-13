@@ -11,3 +11,4 @@ coverage_html
 salt_file.py
 version.py
 *.pyd
+*.c
