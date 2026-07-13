@@ -15,7 +15,7 @@ class DATA_BLOB(ctypes.Structure):
         ("pbData", ctypes.POINTER(ctypes.c_byte))
     ]
 
-def encrypt_json_to_file(filepath: str, data_dict: dict):
+def encrypt_json_to_file(filepath, data_dict):    
     """Serializes a dictionary to JSON, encrypts it with DPAPI using a salt, and saves to disk."""
     # 1. Convert the JSON object/dict into a UTF-8 byte array
     json_string = json.dumps(data_dict)
