@@ -52,7 +52,7 @@ def encrypt_json_to_file(filepath, data_dict):
     finally:
         ctypes.windll.kernel32.LocalFree(blob_out.pbData)
 
-def decrypt_json_from_file(filepath: str) -> dict:
+def decrypt_json_from_file(filepath):
     """Reads a DPAPI .bin file, decrypts it using the provided salt, and returns the JSON dict."""
     # 1. Read the encrypted bytes from disk
     with open(filepath, 'rb') as f:
