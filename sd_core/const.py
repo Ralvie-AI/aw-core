@@ -1,4 +1,5 @@
 import os 
+from pathlib import Path
 
 # DEVELOPMENT_MODE = 0 is for local development.
 # DEVELOPMENT_MODE = 1 is for production.
@@ -6,12 +7,12 @@ import os
 DEVELOPMENT_MODE = 1
 STAGING = 1
 INTERNAL = 0
-LOGGING_VERBOSE = 0    # to log verbose set 1
+LOGGING_VERBOSE = 1    # to log verbose set 1
 CACHE_KEY = "Sundial"
 SETTINGS_CACHE_KEY = "settings_cache"
 APPLICATION_CACHE_KEY = "application_cache"
 
-LOCAL_HOST = "http://localhost:7600/api"
+LOCAL_HOST = "https://localhost:7600/api"
 
 SYNC_TIME = 600 # 10 minutes
 SCREEN_SHOT_SYNC_TIME = 60 # 1 minute
@@ -43,3 +44,11 @@ SD_SERVER = "sd-server"
 PROFILE_FILE = "profile.bin"
 DB_KEY_FILE = "dbkey.bin"
 
+
+CERT = (
+    Path(os.getenv("LOCALAPPDATA"))
+    / "Sundial"
+    / "Sundial"
+    / "tls"
+    / "localhost.crt"
+)

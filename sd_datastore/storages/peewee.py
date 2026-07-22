@@ -673,13 +673,17 @@ class PeeweeStorage(AbstractStorage):
                 logger.info(f"db_key => {db_key}")
                 
             password = decrypt_uuid(db_key.get("encrypted_db_key"), key)
+
+            if LOGGING_VERBOSE == 1:
+                logger.info(f"encrypted_db_key => {db_key.get('encrypted_db_key')}")   
+                logger.info(f"key => {key}")   
+                logger.info(f"password => {password}") 
+
             user_email = cached_credentials.get("email")
             company_id = cached_credentials.get("companyId")
 
-            del db_key
 
-            if LOGGING_VERBOSE == 1:
-                logger.info(f"password => {password}")                
+            del db_key
                 
             # Return true if password is not password
             if not password:
