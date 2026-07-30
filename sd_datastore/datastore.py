@@ -255,7 +255,15 @@ class Datastore:
     def get_screenshot_by_id(self, id):
         return self.storage_strategy.get_screenshot_by_id(id)
 
+    def create_user(self, email, password):
+        return self.storage_strategy.create_user(email, password)
 
+    def check_email(self, email):
+        return self.storage_strategy.check_email(email)
+
+    def check_password(self, email, password):
+        return self.storage_strategy.check_password(email, password)
+    
 class Bucket:
     def __init__(self, datastore: Datastore, bucket_id: str) -> None:
         """

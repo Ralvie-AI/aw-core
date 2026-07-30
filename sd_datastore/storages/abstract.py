@@ -363,4 +363,16 @@ class AbstractStorage(metaclass=ABCMeta):
     @abstractmethod
     def get_screenshot_by_id(self, id):
         raise NotImplementedError
+
+    @abstractmethod
+    def create_user(self, email, password):
+        raise NotImplementedError
+
+    @abstractmethod
+    def check_email(self, email):
+        raise NotImplementedError
+
+    @abstractmethod
+    def check_password(self, email, password):
+        raise NotImplementedError
     

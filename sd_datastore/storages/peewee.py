@@ -15,6 +15,7 @@ import re
 import ctypes
 
 from playhouse.shortcuts import model_to_dict
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from sd_core.cache import credentials
 from sd_core import db_cache
@@ -512,6 +513,20 @@ class ScreenShotModel(BaseModel):
         }
 
 
+class UserModel(BaseModel):
+    # 'id' field is automatically created by Peewee as an auto-incrementing integer PK
+    email = CharField(unique=True, index=True)
+    password = CharField()
+    created_at = DateTimeField(default=datetime.now)
+
+    # Helper method to hash and set the password
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    # Helper method to verify a password during login
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+    
 class SettingsModel(BaseModel):
     id = AutoField()
     code = CharField(unique=True)  # Ensure 'code' is unique across all settings
@@ -611,6 +626,7 @@ class PeeweeStorage(AbstractStorage):
             SettingsModel.create_table(safe=True)
             ApplicationModel.create_table(safe=True)
             ScreenShotModel.create_table(safe=True)
+            UserModel.create_table(safe=True)
             return True
         except Exception as e:
             logger.error(f"Error creating tables: {e}")
@@ -1738,6 +1754,31 @@ class PeeweeStorage(AbstractStorage):
 
             if screenshot_create_at <= end_time:
                 print("Within duration")
+
+    def create_user(self, email, password):
+        new_user = UserModel(email=email)
+        new_user.set_password(password)
+        new_user.save()
+
+    def check_email(self, email):
+        try:
+            UserModel.get(UserModel.email==email)
+            return True
+        except UserModel.DoesNotExist:
+            return False
+
+    def check_password(self, email, password):
+        try:
+            user = UserModel.get(UserModel.email == email)
+        except  UserModel.DoesNotExist:
+            return False, None
+
+        if user.check_password(password):
+            return True, user.id
+
+        return False, None
+           
+        
 
 
     # def save_date(self):
