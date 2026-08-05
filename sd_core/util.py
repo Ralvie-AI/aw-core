@@ -98,7 +98,7 @@ def encrypt_uuid(uuid_str, key):
         encrypted_uuid = fernet.encrypt(str(uuid_str).encode())
         return base64.urlsafe_b64encode(encrypted_uuid).decode('utf-8')
     except Exception as e:
-        print(f"encrypt_uuid error: {e}")
+        logger.exception(f"encrypt_uuid error: {e}")
         return None
 
 
@@ -120,7 +120,7 @@ def decrypt_uuid(encrypted_uuid, key):
         return decrypted_uuid.decode()
     except Exception as e:
         reset_user()
-        print(f"decrypt_uuid error: {e}")
+        logger.exception(f"decrypt_uuid error: {e}")
         return None
 
 

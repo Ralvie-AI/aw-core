@@ -312,7 +312,6 @@ def blocked_apps(ap_name):
     blocking app
     """
     blocked_apps = ApplicationModel.select().where(ApplicationModel.is_blocked==1)
-    # print('blockeda apps',blocked_apps)
 
     apps_info=[{'id':apps.id,'name':apps.name,'is_blocked':apps.is_blocked,'url':apps.url} for apps in list(blocked_apps)]
     block_list=[key['name'] for key in apps_info]
@@ -575,7 +574,6 @@ def setup_weekday_settings():
         existing_weekday_instance = SettingsModel.get_or_none(code="weekdays_schedule")
         if not existing_weekday_instance:
             SettingsModel.from_settings(code="weekdays_schedule", value=DEFAULT_WEEKEND_SETTINGS).save()
-            print("Weekday schedule settings added successfully.")
 
     except Exception as e:
         print(f"An unexpected error occurred while setting up weekday settings: {e}")

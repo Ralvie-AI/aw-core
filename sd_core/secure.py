@@ -48,7 +48,6 @@ def encrypt_json_to_file(filepath, data_dict):
         encrypted_bytes = bytes(ctypes.string_at(blob_out.pbData, blob_out.cbData))
         with open(filepath, 'wb') as f:
             f.write(encrypted_bytes)
-        print(f"[+] Successfully encrypted and saved JSON to {filepath}")
     finally:
         ctypes.windll.kernel32.LocalFree(blob_out.pbData)
 
