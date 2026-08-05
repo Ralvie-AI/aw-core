@@ -1756,9 +1756,21 @@ class PeeweeStorage(AbstractStorage):
                 print("Within duration")
 
     def create_user(self, email, password):
+        email = email.strip().lower()
+
+        # Check whether email already exists
+        if UserModel.select().where(UserModel.email == email).exists():
+            return None, "Email already exists"
+
         new_user = UserModel(email=email)
         new_user.set_password(password)
-        new_user.save()
+
+        try:
+            new_user.save()
+        except peewee.IntegrityError as e:
+            return None, "Email already exists"
+
+        return new_user, None
 
     def check_email(self, email):
         try:
