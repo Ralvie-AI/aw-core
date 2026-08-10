@@ -44,11 +44,7 @@ SD_SERVER = "sd-server"
 PROFILE_FILE = "profile.bin"
 DB_KEY_FILE = "dbkey.bin"
 
+TLS_DIR = Path(os.getenv("LOCALAPPDATA")) / "Sundial" / "Sundial" / "tls"
 
-CERT = (
-    Path(os.getenv("LOCALAPPDATA"))
-    / "Sundial"
-    / "Sundial"
-    / "tls"
-    / "localhost.crt"
-)
+CERT_FILE = TLS_DIR / "localhost.crt"
+KEY_FILE = TLS_DIR / "localhost.key"
