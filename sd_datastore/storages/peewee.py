@@ -905,7 +905,7 @@ class PeeweeStorage(AbstractStorage):
          @return The newly inserted event. Note that you must call save () on the event before you call this
         """
         # e = EventModel.from_event(self.bucket_keys[bucket_id], event)
-        ap_name=event.data['app'].split('.')[0]
+        # ap_name=event.data['app'].split('.')[0]
         # url_link=event.data['url']
         if event.data['title'] != '' and event.data['app'] != '':
             e = EventModel.from_event(self.bucket_keys[bucket_id], event)
@@ -1097,7 +1097,7 @@ class PeeweeStorage(AbstractStorage):
                         'data', JSON(CAST(datastr AS TEXT)),
                         'id', id,
                         'bucket_id', bucket_id,
-                        'application_name', application_name,
+                        'application_name', app,
                         'eventId', eventId,
                         'local_start_time', STRFTIME('%Y-%m-%d %H:%M:%S', local_start_time)
                     )
@@ -1234,8 +1234,13 @@ class PeeweeStorage(AbstractStorage):
             if event.url:
                 e = self._get_last_event_by_app_url(event.application_name, event.url)
             else:
-                e = self._get_last_event_by_app_title(event.application_name, event.title)
-                
+                if event.app == "Visual Studio Code":
+                    new_app = f" - {event.app}"
+                    tmp_title = event.title.replace(new_app, "")
+                    title_name = tmp_title
+                    e = self._get_last_event_by_app_title(event.application_name, title_name)
+                else:
+                    e = self._get_last_event_by_app_title(event.application_name, event.title)
             if e:
                 if e.server_sync_status != 1:
                     e.duration = event['duration'].total_seconds()
