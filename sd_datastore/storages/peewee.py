@@ -1201,7 +1201,13 @@ class PeeweeStorage(AbstractStorage):
             if event.url:
                 e = self._get_last_event_by_app_url(event.application_name, event.url)
             else:
-                e = self._get_last_event_by_app_title(event.application_name, event.title)
+                if event.app == "Visual Studio Code":
+                    new_app = f" - {event.app}"
+                    tmp_title = event.title.replace(new_app, "")
+                    title_name = tmp_title
+                    e = self._get_last_event_by_app_title(event.application_name, title_name)
+                else:
+                    e = self._get_last_event_by_app_title(event.application_name, event.title)
                 
             if e:
                 if e.server_sync_status != 1:
