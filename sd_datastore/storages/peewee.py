@@ -1005,7 +1005,7 @@ class PeeweeStorage(AbstractStorage):
                         'data', JSON(CAST(datastr AS TEXT)),
                         'id', id,
                         'bucket_id', bucket_id,
-                        'application_name', application_name,
+                        'application_name', app,
                         'eventId', eventId,
                         'local_start_time', STRFTIME('%Y-%m-%d %H:%M:%S', local_start_time)
                     )
@@ -1640,9 +1640,7 @@ class PeeweeStorage(AbstractStorage):
             .where(EventModel.timestamp.between(start, end))
         )
 
-        # for row in query:
-        #     logger.info(f"row => {row}")
-        #     logger.info(f"row => {type(row)}")
+                                                 
         return query 
     
     def get_event_by_id(self, event_id):       
