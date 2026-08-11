@@ -1,12 +1,14 @@
 import logging
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
+from pathlib import Path
 from logging.handlers import RotatingFileHandler
 from typing import List, Optional
 
 from . import dirs
 from .decorators import deprecated
+from sd_core.const import FORCE_VERBOSE
 
 # NOTE: Will be removed in a future version since it's not compatible
 #       with running a multi-service process.
@@ -41,7 +43,6 @@ def setup_logging(
     """
     root_logger = logging.getLogger()
 
-    FORCE_VERBOSE = True
     level = logging.DEBUG if FORCE_VERBOSE else logging.INFO
 
     # root use INFO 
