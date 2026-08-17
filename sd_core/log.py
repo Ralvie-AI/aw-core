@@ -8,7 +8,8 @@ from typing import List, Optional
 
 from . import dirs
 from .decorators import deprecated
-from sd_core.const import FORCE_VERBOSE
+from sd_core.const import FORCE_VERBOSE, LOG_CLEAR_TIME
+import time
 
 # NOTE: Will be removed in a future version since it's not compatible
 #       with running a multi-service process.
@@ -184,3 +185,30 @@ def _create_human_formatter() -> logging.Formatter:  # pragma: no cover
         "%(asctime)s [%(levelname)-5s]: %(message)s  (%(name)s:%(lineno)s)",
         "%Y-%m-%d %H:%M:%S",
     )
+
+def clear_old_log():
+
+    log_dir = dirs.get_log_dir()
+
+    target_path = Path(log_dir)
+
+    if not target_path.exists() or not target_path.is_dir():
+        print(f"Error: Directory '{log_dir}' does not exist or is not a directory.")
+        return
+
+    # Calculate cutoff timestamp (180 days ago)
+    cutoff_time = time.time() - (LOG_CLEAR_TIME * 86400)
+    
+    print(f"Scanning '{log_dir}' for .log files older than {LOG_CLEAR_TIME} days...")
+
+    for file_path in target_path.rglob("*.log*"):
+        if file_path.is_file():
+            try:
+                # Check last modified timestamp
+                file_mtime = file_path.stat().st_mtime
+                
+                if file_mtime < cutoff_time:
+                    file_path.unlink()
+
+            except Exception as e:
+                print(f"Failed to process {file_path}: {e}")

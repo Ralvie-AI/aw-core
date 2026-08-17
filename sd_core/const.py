@@ -18,6 +18,8 @@ CACHE_KEY = "Sundial"
 SETTINGS_CACHE_KEY = "settings_cache"
 LOCAL_HOST = "http://localhost:7600/api"
 
+LOG_CLEAR_TIME = 180 #the days to clear old logs
+
 SYNC_TIME = 600 # 10 minutes
 SCREEN_SHOT_SYNC_TIME = 60 # 1  minutes
 STATUS_SYNC_TIME = 180 # 3 minutes
