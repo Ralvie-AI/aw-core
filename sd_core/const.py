@@ -2,7 +2,7 @@
 import os 
 
 TIME_OUT = 60
-TMP_VERSION = "1.3.4"
+TMP_VERSION = "1.3.5"
 
 PIPE_NAME = r'\\.\pipe\AppSocket'
 
