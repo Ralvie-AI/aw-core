@@ -8,7 +8,7 @@ BASE = Path(__file__).resolve().parent
 os.chdir(BASE)
 
 extensions = [
-    Extension("salt_file", ["salt_file.py"]),
+    Extension("salt_file", ["salt_file.pyx"]),
     Extension("secure", ["secure.py"]),
     Extension("cache", ["cache.py"]),
     Extension("os_util", ["os_util.py"]),

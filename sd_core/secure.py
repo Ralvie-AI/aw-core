@@ -3,7 +3,8 @@ import logging
 import ctypes
 from ctypes import wintypes
 
-from sd_core.salt_file import MY_SALT
+# from sd_core.salt_file import MY_SALT
+from sd_core import salt_file
 # Load the Windows Cryptographic API DLL
 crypt32 = ctypes.windll.crypt32
 
@@ -22,8 +23,7 @@ def encrypt_json_to_file(filepath, data_dict):
     json_bytes = json_string.encode('utf-8')
     
     # 2. Convert the Salt string into a byte array
-    salt_bytes = MY_SALT.encode('utf-8')
-    
+    salt_bytes = salt_file.get_salt().encode('utf-8')
     # 3. Prepare C-structures for the target data and the salt (entropy)
     blob_in = DATA_BLOB(len(json_bytes), ctypes.cast(ctypes.create_string_buffer(json_bytes), ctypes.POINTER(ctypes.c_byte)))
     blob_salt = DATA_BLOB(len(salt_bytes), ctypes.cast(ctypes.create_string_buffer(salt_bytes), ctypes.POINTER(ctypes.c_byte)))
@@ -57,7 +57,7 @@ def decrypt_json_from_file(filepath):
     with open(filepath, 'rb') as f:
         encrypted_bytes = f.read()
         
-    salt_bytes = MY_SALT.encode('utf-8')
+    salt_bytes = salt_file.get_salt().encode('utf-8')
     
     blob_in = DATA_BLOB(len(encrypted_bytes), ctypes.cast(ctypes.create_string_buffer(encrypted_bytes), ctypes.POINTER(ctypes.c_byte)))
     blob_salt = DATA_BLOB(len(salt_bytes), ctypes.cast(ctypes.create_string_buffer(salt_bytes), ctypes.POINTER(ctypes.c_byte)))

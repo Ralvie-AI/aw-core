@@ -8,7 +8,7 @@ dist
 venv*
 .*cache
 coverage_html
-salt_file.py
+salt_file.pyx
 version.py
 *.pyd
 *.c
