@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from . import dirs
 from .decorators import deprecated
-from sd_core.const import FORCE_VERBOSE, LOG_CLEAR_TIME
+from sd_core.const import FORCE_VERBOSE, LOG_CLEAR_TIME, STAGING
 import time
 
 # NOTE: Will be removed in a future version since it's not compatible
@@ -16,6 +16,8 @@ import time
 # TODO: prefix with `_`
 log_file_path = None
 
+
+    
 
 @deprecated
 def get_log_file_path() -> Optional[str]:  # pragma: no cover
@@ -160,10 +162,29 @@ def _create_file_handler(
 
     # Should result in something like:
     # $LOG_DIR/sd-server_testing_2017-01-05T00:21:39.log
+
     file_ext = ".log.json" if log_json else ".log"
     now_str = str(datetime.now().replace(microsecond=0).isoformat()).replace(":", "-")
     log_name = name + "_" + ("testing_" if testing else "") + now_str + file_ext
-    log_file_path = os.path.join(log_dir, log_name)
+
+    if (name == 'sd-ocr-activity') and (STAGING == 1):
+        ocr_log_files = list(Path(log_dir).rglob("*.log"))
+
+        for log_file in ocr_log_files:
+            file_name = log_file.name
+            
+            current_date = str(datetime.now().date().isoformat()).replace(":", "-")
+            log_name_for_finding = name + "_" + ("testing_" if testing else "") + current_date
+
+            if file_name.startswith(log_name_for_finding):
+                log_name = file_name
+            else:
+                log_name = name + "_" + ("testing_" if testing else "") + now_str + file_ext
+
+        log_file_path = os.path.join(log_dir, log_name)
+
+    else:
+        log_file_path = os.path.join(log_dir, log_name)
 
     # Create rotating logfile handler, max 10MB per file, 3 files max
     # Prevents logfile from growing too large, like in:
@@ -212,3 +233,4 @@ def clear_old_log():
 
             except Exception as e:
                 print(f"Failed to process {file_path}: {e}")
+
