@@ -36,6 +36,7 @@ from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_s
 from sd_main.manager import Manager
 
 from .abstract import AbstractStorage
+from werkzeug.security import generate_password_hash, check_password_hash
 
 logging.basicConfig(encoding='utf-8')
 
@@ -463,6 +464,20 @@ class ScreenShotModel(BaseModel):
             "event": model_to_dict(self.event, recurse=False)
         }
     
+class UserModel(BaseModel):
+    # 'id' field is automatically created by Peewee as an auto-incrementing integer PK
+    email = CharField(unique=True, index=True)
+    password = CharField()
+    created_at = DateTimeField(default=datetime.now)
+
+    # Helper method to hash and set the password
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    # Helper method to verify a password during login
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+    
 class SettingsModel(BaseModel):
     id = AutoField()
     code = CharField(unique=True)  # Ensure 'code' is unique across all settings
@@ -575,6 +590,7 @@ class PeeweeStorage(AbstractStorage):
             SettingsModel.create_table(safe=True)
             ApplicationModel.create_table(safe=True)
             ScreenShotModel.create_table(safe=True)
+            UserModel.create_table(safe=True)
             return True
         except Exception as e:
             logger.error(f"Error creating tables: {e}")
@@ -662,6 +678,7 @@ class PeeweeStorage(AbstractStorage):
                 SettingsModel.create_table(safe=True)
                 ApplicationModel.create_table(safe=True)
                 ScreenShotModel.create_table(safe=True)
+                UserModel.create_table(safe=True)
                 database_changed = True  # Assume tables creation is a change
             except Exception:
                 pass  # If tables already exist, it's not a change
@@ -1654,7 +1671,40 @@ class PeeweeStorage(AbstractStorage):
     def update_ocr_text(self, screenshot_id, ocr_text):
         ScreenShotModel.update(ocr_text=ocr_text).where(ScreenShotModel.id == screenshot_id).execute()
 
+    def create_user(self, email, password):
+        email = email.strip().lower()
 
+        # Check whether email already exists
+        if UserModel.select().where(UserModel.email == email).exists():
+            return None, "Email already exists"
+
+        new_user = UserModel(email=email)
+        new_user.set_password(password)
+
+        try:
+            new_user.save()
+        except peewee.IntegrityError as e:
+            return None, "Email already exists"
+
+        return new_user, None
+
+    def check_email(self, email):
+        try:
+            UserModel.get(UserModel.email==email)
+            return True
+        except UserModel.DoesNotExist:
+            return False
+
+    def check_password(self, email, password):
+        try:
+            user = UserModel.get(UserModel.email == email)
+        except  UserModel.DoesNotExist:
+            return False, None
+
+        if user.check_password(password):
+            return True, user.id
+
+        return False, None
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",
     #                                                     defaults={'value': datetime.now().date()})
