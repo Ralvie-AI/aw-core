@@ -68,23 +68,6 @@ def generate_key(service_name, user_name):
     keyring.set_password(service_name, user_name, key_string)
 
 
-# Load the secret key from a file
-def load_key(service_name):
-    """
-     Load key from cache. This is used to cache credentials that are stored in Sundial_KEY_FILE
-
-     @param service_name - Name of the service we are looking up
-
-     @return A dict of credentials or None if not found in the cache or no credentials could be found in the
-    """
-    cached_credentials = credentials()
-    # Returns the credentials for the service.
-    if cached_credentials != None:
-        return cached_credentials.get(service_name)
-    else:
-        return None
-
-
 def str_to_fernet(key):
     """
      Convert a FERNET key to a string. This is used to decrypt keys that are stored in the database.

@@ -33,9 +33,6 @@ elif sys.platform == "darwin":
     openssl = ctypes.cdll.LoadLibrary(libsqlcipher_path + '/libcrypto.3.dylib')
     libsqlcipher = ctypes.cdll.LoadLibrary(libsqlcipher_path + '/libsqlcipher.0.dylib')
 
-# from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix,
-#                                 start_all_module, stop_all_module, DEVELOPMENT_MODE)
-
 from sd_core.const import (SETTINGS_CACHE_KEY, 
                            LOGGING_VERBOSE, 
                            APPLICATION_CACHE_KEY)
