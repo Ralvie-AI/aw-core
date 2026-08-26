@@ -19,7 +19,7 @@ packages = [
 sd-cli = "sd_cli.__main__:main"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.11,<3.15"
 jsonschema = "^4.3"
 peewee = "3.*"
 cachetools ="*"
@@ -30,21 +30,15 @@ strict-rfc3339 = "^0.7"
 tomlkit = "*"
 deprecation = "*"
 timeslot = "*"
-cryptography = "*"
+cryptography = "42.0.4"
 cryptocode = "*"
 tldextract = "*"
 winshell = {version = "*", markers = "sys_platform == 'win32'" }
-pysqlcipher3 = [
-    { version = "*", markers = "sys_platform == 'linux' or sys_platform == 'darwin'" },
-    { file = "pysqlcipher3-1.2.0-cp311-cp311-win_amd64.whl", markers = "sys_platform == 'win32'" }
-]
 python-pam="*"
-sqlcipher3 = [
-    { version = "*", markers = "sys_platform == 'linux' or sys_platform == 'darwin'" },
-    { file = "sqlcipher3-0.5.2-cp311-cp311-win_amd64.whl", markers = "sys_platform == 'win32'" }
-]
-keyrings-alt = "^5.0.0"
-keyring = "^25.0.0"
+sqlcipher3-wheels = "0.5.5"
+cffi = "1.17.1"
+charset-normalizer = "3.4.7"
+requests = "2.34.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.0"
