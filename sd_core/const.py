@@ -1,8 +1,9 @@
 
 import os 
+from pathlib import Path
 
 TIME_OUT = 60
-TMP_VERSION = "1.3.5"
+TMP_VERSION = "1.4.0"
 
 PIPE_NAME = r'\\.\pipe\AppSocket'
 
@@ -16,7 +17,7 @@ FORCE_VERBOSE = True     # True = dev / False = producton
 
 CACHE_KEY = "Sundial"
 SETTINGS_CACHE_KEY = "settings_cache"
-LOCAL_HOST = "http://localhost:7600/api"
+LOCAL_HOST = "https://localhost:7600/api"
 
 LOG_CLEAR_TIME = 180 #the days to clear old logs
 
@@ -35,3 +36,10 @@ CONFIG_SERVER = 0
 PUBLIC_KEY = os.path.join(os.path.expanduser("~"),
                 "Library", "Application Support", "Sundial", "sd-server", '{email}-{company_id}-public.pem')
 HOST_TO_UPLOAD_SHOT_GET = "{protocol}://{host}/web/events/screenshot?fileFormat=json&userId={user_id}&companyId={company_id}"
+TLS_SERVICE_NAME = 'TLS-key'
+TLS_DIR = Path(os.path.join(os.path.expanduser("~"),
+                "Library", "Application Support", "Sundial", "tls"))
+CERT_FILE = Path(os.path.join(TLS_DIR, "localhost.crt"))
+CERT_FILE_SWIFT = Path(os.path.join(TLS_DIR, "localhost_swift.der"))
+KEY_FILE = Path(os.path.join(TLS_DIR, "localhost.key"))
+TLS_EXE = "/Applications/Sundial.app/Contents/MacOS/tls-generator"
