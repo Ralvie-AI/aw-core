@@ -264,9 +264,6 @@ class AbstractStorage(metaclass=ABCMeta):
     def retrieve_all_settings(self) -> dict:
         raise NotImplementedError
 
-    def save_application_details(self, application_details):
-        raise NotImplementedError
-
     def retrieve_application_details(self) -> dict:
         raise NotImplementedError
 

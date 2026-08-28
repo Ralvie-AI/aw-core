@@ -109,9 +109,6 @@ class Datastore:
     def retrieve_all_settings(self) -> dict:
         return self.storage_strategy.retrieve_all_settings()
 
-    def save_application_details(self, application_details):
-        return self.storage_strategy.save_application_details(application_details=application_details)
-
     def retrieve_application_details(self) -> dict:
         return self.storage_strategy.retrieve_application_details()
 

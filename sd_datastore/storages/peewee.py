@@ -1495,50 +1495,7 @@ class PeeweeStorage(AbstractStorage):
             return setting
         except SettingsModel.DoesNotExist:
             return None
-
-    def save_application_details(self, application_details):
-        """
-        Save or update application details in the database.
-        :param application_details: A dictionary containing the details of the application.
-        :return: The saved or updated ApplicationModel object.
-        """
-        try:
-            if 'url' in application_details and application_details['url']:
-                application = ApplicationModel.get_or_none(url=application_details['url'])
-                if application:
-                    # Update existing application details
-                    for key, value in application_details.items():
-                        setattr(application, key, value)
-                    application.updated_at = datetime.now()
-                    application.save()
-                else:
-                    application = ApplicationModel.create(**application_details)
-            elif 'name' in application_details and application_details['name']:
-                existing_application = ApplicationModel.get_or_none(name=application_details['name'])
-                if existing_application:
-                    # Update existing application details
-                    for key, value in application_details.items():
-                        setattr(existing_application, key, value)
-                    existing_application.updated_at = datetime.now()
-                    existing_application.save()
-                    application = existing_application
-                else:
-                    # Create a new application
-                    application = ApplicationModel.create(**application_details)
-            else:
-                raise ValueError("Either 'url' or non-empty 'name' must be provided in application_details.")
-
-            # Refresh the application names after saving
-            self.retrieve_application_names()
-
-            return application
-        except peewee.IntegrityError as e:
-            logger.error(f"Integrity error while saving application details: {e}")
-            raise
-        except Exception as e:
-            logger.error(f"An unexpected error occurred while saving application details: {e}")
-            raise
-
+    
     def retrieve_application_details(self):
         """
         Retrieve all application details from the database.
