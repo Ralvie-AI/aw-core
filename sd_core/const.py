@@ -4,7 +4,7 @@ import os
 # DEVELOPMENT_MODE = 1 is for production.
 
 DEVELOPMENT_MODE = 1
-STAGING = 0
+STAGING = 1
 INTERNAL = 0
 LOGGING_VERBOSE = 0    # to log verbose set 1
 CACHE_KEY = "Sundial"
@@ -15,7 +15,6 @@ LOCAL_HOST = "http://localhost:7600/api"
 
 SYNC_TIME = 600 # 10 minutes
 SCREEN_SHOT_SYNC_TIME = 60 # 1 minute
-OCR_SLEEP_TIME = 30 # seconds
 
 
 # 1 set up for configurable server setting
