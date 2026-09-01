@@ -15,7 +15,7 @@ from cryptography.fernet import Fernet
 import keyring
 import pam
 
-from sd_core.cache import credentials, delete_password
+from sd_core.cache import delete_password
 from sd_core.const import CACHE_KEY, LOGGING_VERBOSE
 
 os.environ.pop('HTTP_PROXY', None)
