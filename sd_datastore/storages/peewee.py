@@ -408,11 +408,8 @@ class EventModel(BaseModel):
                 new_app = f" - {app}"
                 tmp_title = title_name.replace(new_app, "")
                 title_name = tmp_title
-                
-                if event.data.get("app") == "Visual Studio Code":
-                    tmp_app = "Code"
-                else:
-                    tmp_app = event.data.get("app")
+                                
+                tmp_app = event.data.get("app")
 
                 if 'url' in event.data and event.data.get("url"):
                     event_data["app"] = tmp_app
