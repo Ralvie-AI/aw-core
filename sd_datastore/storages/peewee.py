@@ -94,11 +94,10 @@ MODEL_NAME_FIELDS = [
         "fields": [("ocr_text", TextField(null=True)),
                    ("local_capture_at", DateTimeField(default=datetime.now, null=True)),
                    ("is_ocr_text_enabled", BooleanField(default=True)),
+                   ("is_event_screenshot", BooleanField(default=False)),
                    ]
-    },   
-        
+    },        
 ]
-
 
 def migrate_table(db, migrator, table_name, fields, existing_fields):
     for field_name, field_obj in fields:
@@ -492,6 +491,7 @@ class ScreenShotModel(BaseModel):
     created_at = DateTimeField(index=True, default=lambda: datetime.now(timezone.utc))
     local_capture_at = DateTimeField(default=datetime.now, null=True)
     is_ocr_text_enabled = BooleanField(default=True)
+    is_event_screenshot = BooleanField(default=False)
 
     def json(self):
         """
@@ -661,7 +661,7 @@ class PeeweeStorage(AbstractStorage):
 
             if LOGGING_VERBOSE == 1:
                 logger.info(f"password => {password}")
-                
+
             # Return true if password is not password
             if not password:
                 return False
@@ -1620,6 +1620,7 @@ class PeeweeStorage(AbstractStorage):
     def get_screenshot_record(self):
         screenshot_data = (ScreenShotModel
               .select()
+              .where(ScreenShotModel.is_event_screenshot == 0)
               .order_by(ScreenShotModel.id) # ASC is implicit
               .limit(1))
         return screenshot_data
@@ -1676,7 +1677,15 @@ class PeeweeStorage(AbstractStorage):
 
             if screenshot_create_at <= end_time:
                 print("Within duration")
+    
+    def save_event_screenshot(self, data) -> int:        
+        screenshot = ScreenShotModel(**data)          
 
+        if LOGGING_VERBOSE == 1:
+            logger.info(f"event screenshot => {screenshot}")
+
+        screenshot.save()
+        return screenshot.id
 
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",
