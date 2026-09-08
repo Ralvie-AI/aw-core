@@ -252,6 +252,9 @@ class Datastore:
     def get_screenshot_by_id(self, id):
         return self.storage_strategy.get_screenshot_by_id(id)
 
+    def save_event_screenshot(self, data) -> int:
+        return self.storage_strategy.save_event_screenshot(data)
+
 
 class Bucket:
     def __init__(self, datastore: Datastore, bucket_id: str) -> None:
