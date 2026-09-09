@@ -363,5 +363,9 @@ class AbstractStorage(metaclass=ABCMeta):
 
     @abstractmethod
     def save_event_screenshot(self, data) -> int:
-        raise NotImplementedError
+        raise 
+
+    @abstractmethod
+    def get_latest_event_id_screenshot(self):
+        raise
     
