@@ -129,6 +129,12 @@ def _create_stderr_handler() -> logging.Handler:  # pragma: no cover
      
      @return A logging. Handler to use for outputting to stderr ( or logging. StreamHandler ). Note that the handler does not have a formatter
     """
+    if hasattr(sys.stderr, "reconfigure"):
+        try:
+            sys.stderr.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
+        
     stderr_handler = logging.StreamHandler(stream=sys.stderr)
     stderr_handler.setFormatter(_create_human_formatter())
 
@@ -165,7 +171,7 @@ def _create_file_handler(
     #  - https://github.com/ActivityWatch/activitywatch/issues/815#issue-1423555466
     #  - https://github.com/ActivityWatch/activitywatch/issues/756#issuecomment-1266662861
     fh = RotatingFileHandler(
-        log_file_path, mode="a", maxBytes=10 * 1024 * 1024, backupCount=3
+        log_file_path, mode="a", maxBytes=10 * 1024 * 1024, backupCount=3, encoding="utf-8",
     )
     fh.setFormatter(_create_human_formatter())
 
