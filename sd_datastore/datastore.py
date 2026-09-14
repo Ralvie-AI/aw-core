@@ -234,12 +234,18 @@ class Datastore:
     def get_latest_screenshot(self):
         return self.storage_strategy.get_latest_screenshot()
     
-    def get_screenshot_record_count(self):
-        return self.storage_strategy.get_screenshot_record_count()
+    # def get_screenshot_record_count(self):
+    #     return self.storage_strategy.get_screenshot_record_count()
     
-    def get_screenshot_record(self):
-        return self.storage_strategy.get_screenshot_record()
+    # def get_screenshot_record(self):
+    #     return self.storage_strategy.get_screenshot_record()
+
+    def get_screenshot_record_count(self, is_event_screenshot):
+        return self.storage_strategy.get_screenshot_record_count(is_event_screenshot)
     
+    def get_screenshot_record(self, is_event_screenshot):
+        return self.storage_strategy.get_screenshot_record(is_event_screenshot)
+
     def get_events_timestamp_range(self, start, end):
         return self.storage_strategy.get_events_timestamp_range(start, end)
     
@@ -249,6 +255,15 @@ class Datastore:
     def update_ocr_text(self, screenshot_id, ocr_text):
         return self.storage_strategy.update_ocr_text(screenshot_id, ocr_text)
 
+
+    def update_ocr_event_text(self, event_id, ocr_text):
+        return self.storage_strategy.update_ocr_event_text(event_id, ocr_text)
+    
+    def delete_ocr_event(self, list_of_ids):
+        return self.storage_strategy.delete_ocr_event(list_of_ids)
+
+    def get_ocr_event_by_event_ID(self, event_id):
+        return self.storage_strategy.get_ocr_event_by_event_ID(event_id)
 
 class Bucket:
     def __init__(self, datastore: Datastore, bucket_id: str) -> None:

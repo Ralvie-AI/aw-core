@@ -35,7 +35,7 @@ from sd_core.models import Event
 from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_suffix, start_all_module, stop_all_module)
 from sd_main.manager import Manager
 
-from .abstract import AbstractStorage
+from sd_datastore.storages.abstract import AbstractStorage
 
 logging.basicConfig(encoding='utf-8')
 
@@ -96,7 +96,9 @@ def auto_migrate(db: Any, path: str) -> None:
         "name": "screenshotmodel",
         "fields": [("ocr_text", TextField(null=True)),
                     ("local_capture_at", DateTimeField(default=datetime.now, null=True)),
-                    ("is_ocr_text_enabled", BooleanField(default=True)),]
+                    ("is_ocr_text_enabled", BooleanField(default=True)),
+                    ('is_event_screenshot', IntegerField(default=0)),
+                ]
         },
     ]
 
@@ -448,7 +450,7 @@ class ScreenShotModel(BaseModel):
     created_at = DateTimeField(index=True, default=lambda: datetime.now(timezone.utc))
     local_capture_at = DateTimeField(default=datetime.now, null=True)
     is_ocr_text_enabled = BooleanField(default=True)
-
+    is_event_screenshot = IntegerField(default=0) # 0 = auto, 1 = ocr_extraction
 
 
     def json(self):
@@ -1614,17 +1616,36 @@ class PeeweeStorage(AbstractStorage):
     def get_latest_screenshot(self):
         latest_screenshot = ScreenShotModel.select().order_by(ScreenShotModel.event_id.desc()).first()
         return latest_screenshot 
+    # def get_screenshot_record_count(self):
+    #     return ScreenShotModel.select().count()
+
+    # def get_screenshot_record(self):
+    #     screenshot_data = (ScreenShotModel
+    #           .select()
+    #           .order_by(ScreenShotModel.id) # ASC is implicit
+    #           .limit(1))
+
+    #     return screenshot_data
     
-    def get_screenshot_record_count(self):
-        return ScreenShotModel.select().count()
+    def get_screenshot_record_count(self, is_event_screenshot: int):
+        return ScreenShotModel.select().where(ScreenShotModel.is_event_screenshot == is_event_screenshot).count()
       
-    def get_screenshot_record(self):
-        screenshot_data = (ScreenShotModel
-              .select()
-              .order_by(ScreenShotModel.id) # ASC is implicit
-              .limit(1))
-    
-        return screenshot_data
+    def get_screenshot_record(self, is_event_screenshot: int):
+
+        if is_event_screenshot == 0:
+            screenshot_data = (ScreenShotModel
+                .select()
+                .where(ScreenShotModel.is_event_screenshot == is_event_screenshot)
+                .order_by(ScreenShotModel.id) # ASC is implicit
+                .limit(1))
+        else: # is_event_screenshot == 1
+            screenshot_data = (ScreenShotModel
+                .select()
+                .where(ScreenShotModel.is_event_screenshot == is_event_screenshot)
+                .order_by(ScreenShotModel.id) # ASC is implicit
+            )
+
+        return screenshot_data           
     
     
     
@@ -1653,6 +1674,25 @@ class PeeweeStorage(AbstractStorage):
     
     def update_ocr_text(self, screenshot_id, ocr_text):
         ScreenShotModel.update(ocr_text=ocr_text).where(ScreenShotModel.id == screenshot_id).execute()
+
+    def update_ocr_event_text(self, event_id, ocr_text):
+        #update ocr text after doing ocr event
+        ScreenShotModel.update(ocr_text=ocr_text).where(ScreenShotModel.is_event_screenshot == 1).where(ScreenShotModel.event_id == event_id).execute()
+
+    def delete_ocr_event(self, list_of_ids):
+        #after sync to ralvie server SUCCESSFUL
+        ScreenShotModel.delete().where(ScreenShotModel.is_event_screenshot == 1).where(ScreenShotModel.event_id.in_(list_of_ids)).execute()
+
+    def get_ocr_event_by_event_ID(self, event_id):
+
+        record = (
+            ScreenShotModel.select()
+            .where(ScreenShotModel.event_id == event_id)
+            .where(ScreenShotModel.is_event_screenshot == 1)
+            .get_or_none()
+        )
+
+        return record
 
 
     # def save_date(self):
