@@ -27,6 +27,7 @@ url = str
 application_name=str
 server_sync_status = Number
 eventId = str
+title_full = str
 
 
 def _timestamp_parse(ts_in: ConvertibleTimestamp) -> datetime:
@@ -88,7 +89,8 @@ class Event(dict):
             title: title = '',
             url: url = '',
             application_name: application_name = '',
-            server_sync_status: server_sync_status = 0
+            server_sync_status: server_sync_status = 0,
+            title_full: title_full = ''
     ) -> None:
         """
          Initialize an event with the given id timestamp duration and data. This is the constructor for Event objects that do not need to be called directly.
@@ -117,6 +119,7 @@ class Event(dict):
         self.data = data
         self.app = data.get('app', '')
         self.title = data.get('title', '')
+        self.title_full = data.get('title', '')
         self.url = data.get('url', '')
         app_name = None
         if not self.url:

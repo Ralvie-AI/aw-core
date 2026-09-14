@@ -87,6 +87,7 @@ MODEL_NAME_FIELDS = [
         "name" : "eventmodel",
         "fields": [("server_sync_status", IntegerField(default=0)),
                    ("local_start_time", DateTimeField(default=datetime.now, null=True)),
+                   ("title_full", TextField(null=True)),
                    ]
     },
     {
@@ -347,6 +348,7 @@ class EventModel(BaseModel):
     server_sync_status = IntegerField(default=0)
     eventId = UUIDField(unique=True, default=uuid.uuid4)
     local_start_time = DateTimeField(default=datetime.now, null=True)
+    title_full = TextField(null=True)
 
     @classmethod
     def from_event(cls, bucket_key, event: Event):
@@ -363,6 +365,7 @@ class EventModel(BaseModel):
             # logger.info("Creating EventModel from event: %s", event)
             app_name = None
             title_name = event.data.get('title')
+            title_full = event.data.get('title')
             application_name = event.data.get('app')
             if not event.data.get('url'):
                 app_name = event.data.get('app', '')
@@ -430,7 +433,8 @@ class EventModel(BaseModel):
                         title=title_name,
                         url=event.data.get('url', ''),
                         application_name=app_name,
-                        server_sync_status=cls.server_sync_status or 0
+                        server_sync_status=cls.server_sync_status or 0,
+                        title_full = title_full,
                     )
                     # decoded_title = bytes(event_model.title, 'utf-8').decode('unicode_escape')
                     # # Log the decoded title
@@ -458,7 +462,8 @@ class EventModel(BaseModel):
             title=event.data.get('title', ''),
             url=event.data.get('url', ''),
             application_name=app_name,
-            server_sync_status=0
+            server_sync_status=0,
+            title_full=event.data.get('title', '')
         )
 
     def json(self):
@@ -477,6 +482,7 @@ class EventModel(BaseModel):
             "url": self.url,
             "application_name": self.application_name,
             "server_sync_status": self.server_sync_status,
+            "title_full": self.title_full,
             # "eventId": str(self.eventId)  # UUID
         }
 
@@ -868,9 +874,10 @@ class PeeweeStorage(AbstractStorage):
         # e = EventModel.from_event(self.bucket_keys[bucket_id], event)
         # ap_name=event.data['app'].split('.')[0]
         # url_link=event.data['url']
+        logging.info(f"insert_one => {event}")
         if event.data['title'] != '' and event.data['app'] != '':
             e = EventModel.from_event(self.bucket_keys[bucket_id], event)
-            is_exist = self._get_last_event_by_app_title_pulsetime(app=event.application_name, title=event.title)
+            is_exist = self._get_last_event_by_app_title_pulsetime(app=event.app, title=event.title)
             if 'afk' not in event.application_name and is_exist and e:
                 # logger.info(f'event app: {event.application_name} title: {event.title}')
                 is_exist.duration += Decimal(str(e.duration))
@@ -1157,7 +1164,7 @@ class PeeweeStorage(AbstractStorage):
         return (
             EventModel
             .select()
-            .where((EventModel.application_name == app) & (EventModel.title == title) & (
+            .where((EventModel.app == app) & (EventModel.title_full == title) & (
                     EventModel.timestamp >= time_60_seconds_ago_utc))
             .order_by(EventModel.timestamp.desc())
             .first()
@@ -1167,7 +1174,7 @@ class PeeweeStorage(AbstractStorage):
         return (
             EventModel
             .select()
-            .where((EventModel.application_name == app) & (EventModel.title == title))
+            .where((EventModel.app == app) & (EventModel.title_full == title))
             .order_by(EventModel.timestamp.desc())
             .first()
         )
@@ -1176,7 +1183,7 @@ class PeeweeStorage(AbstractStorage):
         return (
             EventModel
             .select()
-            .where((EventModel.application_name == app) & (EventModel.url == url))
+            .where((EventModel.app == app) & (EventModel.url == url))
             .order_by(EventModel.timestamp.desc())
             .first()
         )
@@ -1190,21 +1197,18 @@ class PeeweeStorage(AbstractStorage):
 
          @return The event with the latest data replaced with the given
         """
+        logger.info(f"replace_last event => {event}")
         try:
             e = None
             if event.url:
-                e = self._get_last_event_by_app_url(event.application_name, event.url)
+                e = self._get_last_event_by_app_url(event.app, event.url)
             else:
-                if event.app == "Visual Studio Code":
-                    new_app = f" - {event.app}"
-                    tmp_title = event.title.replace(new_app, "")
-                    title_name = tmp_title
-                    e = self._get_last_event_by_app_title(event.application_name, title_name)
-                else:
-                    e = self._get_last_event_by_app_title(event.application_name, event.title)
-                
+                e = self._get_last_event_by_app_title(event.app, event.title_full)
+                    
+            logger.info(f"e => {e} => type => {type(e)}")
             if e:
                 if e.server_sync_status != 1:
+                    logger.info(f"replace_last event save => {event}")
                     e.duration = event['duration'].total_seconds()
                     e.server_sync_status = 0
                     e.save()
