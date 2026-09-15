@@ -57,6 +57,9 @@ def setup_logging(
     logging.getLogger("sd_core").setLevel(level)
     logging.getLogger("sd_server").setLevel(level)
     logging.getLogger("sd_pixel_engine").setLevel(level)
+    logging.getLogger("sd_pixel_engine_event").setLevel(level)
+    logging.getLogger("sd_ocr_event").setLevel(level)
+
     root_logger.handlers = []
 
     # run with LOG_LEVEL=DEBUG to customize log level across all SD components
