@@ -16,7 +16,7 @@ import keyring
 import pam
 
 from sd_core.cache import delete_password
-from sd_core.const import CACHE_KEY, LOGGING_VERBOSE
+from sd_core.const import CACHE_KEY, LOGGING_VERBOSE, DEVELOPMENT_MODE
 
 os.environ.pop('HTTP_PROXY', None)
 os.environ.pop('HTTPS_PROXY', None)
@@ -388,6 +388,28 @@ def inspect_function():
 
     logger.info(f"Function called from {caller_name} in {caller_filename} at line {caller_line}")
 
+
+def run_event_ocr_exe(event_id, timestamp, duration, user_id):
+    if DEVELOPMENT_MODE != 0:
+        sd_pixel_engine_event_exe = os.path.join(get_running_path(), "sd-ocr-event.exe")
+        command_list = [
+                        sd_pixel_engine_event_exe,
+                        "--server_url", "", 
+                        "--user_id", user_id, 
+                        "--image_path", "",
+                        "--event_id", str(event_id),
+                        "--timestamp", str(timestamp),
+                        "--duration", str(duration)                                        
+                        ]
+        logger.info(f"command_list => {command_list}")
+        result = subprocess.run(
+                    command_list,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
+        logger.info(f" result subprocesss => {result}")
 
 if __name__ == '__main__':
     from tzlocal import get_localzone
