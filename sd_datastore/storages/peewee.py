@@ -874,7 +874,6 @@ class PeeweeStorage(AbstractStorage):
         # e = EventModel.from_event(self.bucket_keys[bucket_id], event)
         # ap_name=event.data['app'].split('.')[0]
         # url_link=event.data['url']
-        logging.info(f"insert_one => {event}")
         if event.data['title'] != '' and event.data['app'] != '':
             e = EventModel.from_event(self.bucket_keys[bucket_id], event)
             is_exist = self._get_last_event_by_app_title_pulsetime(app=event.app, title=event.title)
@@ -1197,7 +1196,6 @@ class PeeweeStorage(AbstractStorage):
 
          @return The event with the latest data replaced with the given
         """
-        logger.info(f"replace_last event => {event}")
         try:
             e = None
             if event.url:
@@ -1205,10 +1203,8 @@ class PeeweeStorage(AbstractStorage):
             else:
                 e = self._get_last_event_by_app_title(event.app, event.title_full)
                     
-            logger.info(f"e => {e} => type => {type(e)}")
             if e:
                 if e.server_sync_status != 1:
-                    logger.info(f"replace_last event save => {event}")
                     e.duration = event['duration'].total_seconds()
                     e.server_sync_status = 0
                     e.save()
@@ -1700,6 +1696,31 @@ class PeeweeStorage(AbstractStorage):
         )
 
         return latest_event_id
+
+    
+    def get_event_ocr_text(self, event_ids):
+        query = (
+            ScreenShotModel.select(ScreenShotModel.id, 
+                                   ScreenShotModel.event_id, 
+                                   ScreenShotModel.ocr_text)
+                .where(
+                    (ScreenShotModel.event_id.in_(event_ids)) &
+                    (ScreenShotModel.is_event_screenshot == 1)
+                )
+        )
+        return query 
+
+    def delete_events_screenshot(self, event_ids):
+        logger.info(f"delete => {event_ids}")
+        query = (
+                ScreenShotModel
+                .delete()
+                .where(
+                    (ScreenShotModel.event_id.in_(event_ids)) &
+                    (ScreenShotModel.is_event_screenshot == 1))
+                .execute()
+            )
+        return query 
 
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",

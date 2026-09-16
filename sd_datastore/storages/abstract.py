@@ -368,4 +368,11 @@ class AbstractStorage(metaclass=ABCMeta):
     @abstractmethod
     def get_latest_event_id_screenshot(self):
         raise
-    
+
+    @abstractmethod
+    def get_event_ocr_text(self, event_ids):
+        raise
+
+    @abstractmethod
+    def delete_events_screenshot(self, screenshot_ids):
+        raise
