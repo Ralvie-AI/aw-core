@@ -258,6 +258,12 @@ class Datastore:
     def get_latest_event_id_screenshot(self) -> int:
         return self.storage_strategy.get_latest_event_id_screenshot()
 
+    def get_event_ocr_text(self, event_ids):
+        return self.storage_strategy.get_event_ocr_text(event_ids)
+
+    def delete_events_screenshot(self, event_ids):
+        return self.storage_strategy.delete_events_screenshot(event_ids)
+
 
 class Bucket:
     def __init__(self, datastore: Datastore, bucket_id: str) -> None:
@@ -420,7 +426,7 @@ class Bucket:
 Previous: {last_event}
 Inserted: {oldest_event}"""
                 )
-        logger.info(f"inserted => {inserted}")
+
         return inserted
 
     def delete(self, event_id):
