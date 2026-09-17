@@ -264,6 +264,9 @@ class Datastore:
     def delete_events_screenshot(self, event_ids):
         return self.storage_strategy.delete_events_screenshot(event_ids)
 
+    def get_latest_timestamp_event(self):
+        return self.storage_strategy.get_latest_timestamp_event()
+
 
 class Bucket:
     def __init__(self, datastore: Datastore, bucket_id: str) -> None:

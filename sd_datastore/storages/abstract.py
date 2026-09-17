@@ -376,3 +376,8 @@ class AbstractStorage(metaclass=ABCMeta):
     @abstractmethod
     def delete_events_screenshot(self, screenshot_ids):
         raise
+
+    @abstractmethod
+    def get_latest_timestamp_event(self):
+        raise
+    

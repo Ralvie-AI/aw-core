@@ -1711,7 +1711,7 @@ class PeeweeStorage(AbstractStorage):
         return query 
 
     def delete_events_screenshot(self, event_ids):
-        logger.info(f"delete => {event_ids}")
+        logger.info(f"delete => {event_ids}")    
         query = (
                 ScreenShotModel
                 .delete()
@@ -1721,6 +1721,18 @@ class PeeweeStorage(AbstractStorage):
                 .execute()
             )
         return query 
+
+    def get_latest_timestamp_event(self):
+        latest = (
+            EventModel
+            .select(EventModel.timestamp)
+            .where(EventModel.server_sync_status == 1)
+            .order_by(EventModel.timestamp.desc())
+            .first()
+        )
+
+        return latest
+    
 
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",

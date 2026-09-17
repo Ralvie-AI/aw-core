@@ -401,7 +401,7 @@ def run_event_ocr_exe(event_id, timestamp, duration, user_id):
                         "--timestamp", str(timestamp),
                         "--duration", str(duration)                                        
                         ]
-        logger.info(f"command_list => {command_list}")
+        # logger.info(f"command_list => {command_list}")
         result = subprocess.run(
                     command_list,
                     capture_output=True,
@@ -409,7 +409,7 @@ def run_event_ocr_exe(event_id, timestamp, duration, user_id):
                     check=True,
                     creationflags=subprocess.CREATE_NO_WINDOW
                 )
-        logger.info(f" result subprocesss => {result}")
+        # logger.info(f" result subprocesss => {result}")
 
 if __name__ == '__main__':
     from tzlocal import get_localzone
