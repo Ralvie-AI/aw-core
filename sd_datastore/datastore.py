@@ -255,9 +255,6 @@ class Datastore:
     def save_event_screenshot(self, data) -> int:
         return self.storage_strategy.save_event_screenshot(data)
 
-    def get_latest_event_id_screenshot(self) -> int:
-        return self.storage_strategy.get_latest_event_id_screenshot()
-
     def get_event_ocr_text(self, event_ids):
         return self.storage_strategy.get_event_ocr_text(event_ids)
 

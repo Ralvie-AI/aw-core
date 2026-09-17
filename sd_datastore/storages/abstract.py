@@ -366,10 +366,6 @@ class AbstractStorage(metaclass=ABCMeta):
         raise 
 
     @abstractmethod
-    def get_latest_event_id_screenshot(self):
-        raise
-
-    @abstractmethod
     def get_event_ocr_text(self, event_ids):
         raise
 

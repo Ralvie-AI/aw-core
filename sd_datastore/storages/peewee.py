@@ -1686,18 +1686,7 @@ class PeeweeStorage(AbstractStorage):
 
         screenshot.save()
         return screenshot.id
-
-    def get_latest_event_id_screenshot(self):
-        latest_event_id = (
-            ScreenShotModel.select(ScreenShotModel.event_id)
-            .where(ScreenShotModel.is_event_screenshot == 1)
-            .order_by(ScreenShotModel.id.desc())
-            .scalar()
-        )
-
-        return latest_event_id
-
-    
+  
     def get_event_ocr_text(self, event_ids):
         query = (
             ScreenShotModel.select(ScreenShotModel.id, 
