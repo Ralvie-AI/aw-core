@@ -314,10 +314,6 @@ class AbstractStorage(metaclass=ABCMeta):
         raise NotImplementedError
     
     @abstractmethod
-    def update_server_sync_status_with_retry(self, list_of_ids, new_status):
-        raise NotImplementedError    
-
-    @abstractmethod
     def get_last_event_by_app_title_pulsetime(self, app, title):
         raise NotImplementedError
     
@@ -327,18 +323,10 @@ class AbstractStorage(metaclass=ABCMeta):
     
     @abstractmethod
     def save_screenshot(self, data) -> None:
-        raise NotImplementedError
-    
-    @abstractmethod
-    def get_latest_screenshot(self):
-        raise NotImplementedError
-    
+        raise NotImplementedError    
+   
     @abstractmethod
     def get_screenshot_record(self):
-        raise NotImplementedError
-    
-    @abstractmethod
-    def get_screenshot_record_count(self):
         raise NotImplementedError
     
     @abstractmethod
@@ -351,14 +339,6 @@ class AbstractStorage(metaclass=ABCMeta):
     
     @abstractmethod
     def update_ocr_text(self, screenshot_id, ocr_text):
-        raise NotImplementedError
-    
-    @abstractmethod
-    def get_last_row_today(self, screenshot_create_at):
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_screenshot_by_id(self, id):
         raise NotImplementedError
 
     @abstractmethod

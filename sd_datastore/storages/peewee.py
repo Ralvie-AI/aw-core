@@ -935,37 +935,7 @@ class PeeweeStorage(AbstractStorage):
             EventModel.insert_many(chunk).execute()
 
     def update_server_sync_status(self, list_of_ids, new_status):
-        EventModel.update(server_sync_status=new_status).where(EventModel.id.in_(list_of_ids)).execute()
-    
-    def update_server_sync_status_with_retry(self, list_of_ids, new_status):
-
-        def update_with_retry(id, status, retries=5, delay=0.2):
-            for attempt in range(retries):
-                try:
-                    rows_updated = (
-                            EventModel
-                            .update(server_sync_status=status)
-                            .where(EventModel.id == id)
-                            .execute()
-                        ) 
-                    if rows_updated > 0:
-                        break
-
-                    time.sleep(delay)
-                                                
-                except Exception as e:
-                    if "locked" in str(e).lower():
-                        logger.info(f"[DB] Locked, retry {attempt+1}/{retries}...")
-                        time.sleep(delay)                           
-        
-        for event_id in list_of_ids:
-            update_with_retry(event_id, new_status)
-           
-        for event_id in list_of_ids:
-            event = EventModel.get(EventModel.id == event_id)
-            logger.info(f"Check again for event id {event_id} server_sync_status {event.server_sync_status}")
-            if event.server_sync_status == 0:
-                update_with_retry(event_id, new_status)        
+        EventModel.update(server_sync_status=new_status).where(EventModel.id.in_(list_of_ids)).execute()   
 
     def _get_event(self, bucket_id, event_id) -> Optional[EventModel]:
         """
@@ -1610,29 +1580,15 @@ class PeeweeStorage(AbstractStorage):
 
         screenshot.save()
 
-    def get_latest_screenshot(self):
-        latest_screenshot = ScreenShotModel.select().order_by(ScreenShotModel.event_id.desc()).first()
-        return latest_screenshot    
-    
-    def get_screenshot_record_count(self):
-        return ScreenShotModel.select().count()
-      
+         
     def get_screenshot_record(self):
         screenshot_data = (ScreenShotModel
               .select()
               .where(ScreenShotModel.is_event_screenshot == 0)
               .order_by(ScreenShotModel.id) # ASC is implicit
               .limit(1))
-        return screenshot_data
-    
-    def get_screenshot_by_id(self, id):
-        screenshot = ScreenShotModel.get_or_none(ScreenShotModel.id == id)
-
-        if screenshot:
-            return screenshot
-        else:
-            return None
-    
+        return screenshot_data    
+  
     def get_events_timestamp_range(self, start, end):
         # logger.info(f"start => {start} => type => {type(start)}")
         # logger.info(f"start => {end} => type => {type(end)}")
@@ -1661,22 +1617,6 @@ class PeeweeStorage(AbstractStorage):
 
     def update_ocr_text(self, screenshot_id, ocr_text):
         ScreenShotModel.update(ocr_text=ocr_text).where(ScreenShotModel.id == screenshot_id).execute()
-
-
-    def get_last_row_today(self, screenshot_create_at):
-        last_row = (
-            EventModel
-            .select()
-            .where(EventModel.timestamp.date() == screenshot_create_at.date())
-            .order_by(EventModel.timestamp.id)
-            .first()
-        )
-
-        if last_row:
-            end_time = last_row.timestamp + timedelta(seconds=last_row.duration)
-
-            if screenshot_create_at <= end_time:
-                print("Within duration")
     
     def save_event_screenshot(self, data) -> int:        
         screenshot = ScreenShotModel(**data)          
