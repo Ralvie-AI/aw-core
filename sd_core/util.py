@@ -389,13 +389,14 @@ def inspect_function():
     logger.info(f"Function called from {caller_name} in {caller_filename} at line {caller_line}")
 
 
-def run_event_ocr_exe(event_id, timestamp, duration, user_id):
+def run_event_ocr_exe(event_id, timestamp, duration, user_id, company_id):
     if DEVELOPMENT_MODE != 0:
-        sd_pixel_engine_event_exe = os.path.join(get_running_path(), "sd-ocr-event.exe")
+        sd_ocr_event_exe = os.path.join(get_running_path(), "sd-ocr-event.exe")
         command_list = [
-                        sd_pixel_engine_event_exe,
+                        sd_ocr_event_exe,
                         "--server_url", "", 
                         "--user_id", user_id, 
+                        "--company_id", company_id, 
                         "--image_path", "",
                         "--event_id", str(event_id),
                         "--timestamp", str(timestamp),

@@ -664,7 +664,6 @@ class PeeweeStorage(AbstractStorage):
             password = decrypt_uuid(db_key, key)
             user_email = cached_credentials.get("email")
             company_id = cached_credentials.get("companyId")
-
             if LOGGING_VERBOSE == 1:
                 logger.info(f"password => {password}")
 
@@ -1634,7 +1633,7 @@ class PeeweeStorage(AbstractStorage):
         return query 
 
     def delete_events_screenshot(self, event_ids):
-        logger.info(f"delete => {event_ids}")    
+        logger.info(f"delete => {event_ids}")
         query = (
                 ScreenShotModel
                 .delete()
