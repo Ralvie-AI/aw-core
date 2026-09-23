@@ -264,6 +264,9 @@ class Datastore:
 
     def get_ocr_event_by_event_ID(self, event_id):
         return self.storage_strategy.get_ocr_event_by_event_ID(event_id)
+    
+    def delete_event_interval(self):
+        return self.storage_strategy.delete_event_interval()
 
 class Bucket:
     def __init__(self, datastore: Datastore, bucket_id: str) -> None:

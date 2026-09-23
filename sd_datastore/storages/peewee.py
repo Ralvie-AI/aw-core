@@ -36,6 +36,7 @@ from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_s
 from sd_main.manager import Manager
 
 from sd_datastore.storages.abstract import AbstractStorage
+from sd_core.const import EVENT_CLEAR_TIME
 
 logging.basicConfig(encoding='utf-8')
 
@@ -690,6 +691,9 @@ class PeeweeStorage(AbstractStorage):
             self.launch_application_start()
             db_cache.delete(settings_cache_key)
             db_cache.store(settings_cache_key, self.retrieve_all_settings())
+
+            #del event that over that target days
+            self.delete_event_interval()
             return True
 
 
@@ -1694,6 +1698,15 @@ class PeeweeStorage(AbstractStorage):
 
         return record
 
+    def delete_event_interval(self):
+
+        current_dt = datetime.now(timezone.utc)
+        target_date = (current_dt - timedelta(days=EVENT_CLEAR_TIME)).date()
+        time_format = "%Y-%m-%d"
+
+        logger.info(f'del event for {EVENT_CLEAR_TIME} days, event before {target_date.strftime(time_format)} will deleted')
+
+        EventModel.delete().where(EventModel.timestamp < target_date.strftime(time_format)).execute()
 
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",

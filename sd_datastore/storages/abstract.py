@@ -359,3 +359,7 @@ class AbstractStorage(metaclass=ABCMeta):
     @abstractmethod
     def update_ocr_text(self, screenshot_id, ocr_text):
         raise NotImplementedError
+
+    @abstractmethod
+    def delete_event_interval(self):
+        raise NotImplementedError
