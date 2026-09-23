@@ -14,6 +14,7 @@ from typing import (
 import re
 import ctypes
 
+from dateutil.relativedelta import relativedelta
 from playhouse.shortcuts import model_to_dict
 
 from sd_core.cache import credentials
@@ -664,6 +665,7 @@ class PeeweeStorage(AbstractStorage):
             password = decrypt_uuid(db_key, key)
             user_email = cached_credentials.get("email")
             company_id = cached_credentials.get("companyId")
+
             if LOGGING_VERBOSE == 1:
                 logger.info(f"password => {password}")
 
@@ -1654,7 +1656,35 @@ class PeeweeStorage(AbstractStorage):
         )
 
         return latest
-    
+
+    def delete_events_batched(self, months: int = 6, batch_size: int = 1000) -> int:
+        """Deletes up to `batch_size` events older than `months` in a single run.
+
+        Called every 10 minutes to gradually trim old data without blocking writes.
+        """
+        cutoff_date = datetime.now(timezone.utc) - relativedelta(months=months)
+        with self.db.connection_context():
+            # Peewee subquery: SELECT id FROM eventmodel WHERE timestamp < cutoff ORDER BY id ASC LIMIT batch_size
+            subquery = (
+                EventModel.select(EventModel.id)
+                .where(EventModel.timestamp < cutoff_date)
+                .order_by(EventModel.id.asc())
+                .limit(batch_size)
+            )
+
+            with self.db.atomic():
+                deleted_count = (
+                    EventModel.delete()
+                    .where(EventModel.id.in_(subquery))
+                    .execute()
+                )
+
+        if deleted_count > 0:
+            logger.info(
+                f"Routine cleanup: deleted {deleted_count} events older than {months} months."
+            )
+
+        return deleted_count       
 
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",

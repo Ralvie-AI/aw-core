@@ -356,4 +356,9 @@ class AbstractStorage(metaclass=ABCMeta):
     @abstractmethod
     def get_latest_timestamp_event(self):
         raise
-    
+
+    @abstractmethod
+    def delete_events_batched(
+            self, months: int = 6, batch_size: int = 1000
+        ) -> int:
+        raise

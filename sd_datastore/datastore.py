@@ -252,6 +252,11 @@ class Datastore:
     def get_latest_timestamp_event(self):
         return self.storage_strategy.get_latest_timestamp_event()
 
+    def delete_events_batched(
+            self, months: int = 6, batch_size: int = 1000
+        ) -> int:
+        return self.storage_strategy.delete_events_batched(months, batch_size)
+
 
 class Bucket:
     def __init__(self, datastore: Datastore, bucket_id: str) -> None:
