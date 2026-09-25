@@ -1,6 +1,6 @@
 """
 The idea behind this `sd` or `sd-cli` wrapper script is to act as a collection of helper tools,
-and perhaps even as a way to list and run ActivityWatch modules on a system (a bit like sd-qt, but without the GUI).
+and perhaps even as a way to list and run ActivityWatch modules on a system (a bit like sd-main, but without the GUI).
 """
 
 from pathlib import Path
@@ -35,7 +35,7 @@ def qt(ctx):
      @return The exit code of
     """
     return subprocess.call(
-        ["sd-qt"] + (["--testing"] if ctx.parent.params["testing"] else [])
+        ["sd-main"] + (["--testing"] if ctx.parent.params["testing"] else [])
     )
 
 
