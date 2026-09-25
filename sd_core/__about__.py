@@ -13,9 +13,9 @@ __all__ = [
     "__copyright__",
 ]
 
-__title__ = "sd-core"
+__title__ = "aw-core"
 __summary__ = "Core library for ActivityWatch"
-__uri__ = "https://github.com/ActivityWatch/sd-core"
+__uri__ = "https://github.com/ActivityWatch/aw-core"
 
 __version__ = "0.4.2"
 
