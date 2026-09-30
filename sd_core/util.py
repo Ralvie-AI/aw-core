@@ -247,10 +247,19 @@ def remove_more_page_suffix(text):
         return text
 
 def get_running_path():
-    if getattr(sys, 'frozen', False):
-        return os.path.dirname(sys.executable)
+
+    if sys.platform == "win32":            
+        if getattr(sys, 'frozen', False):
+            return os.path.dirname(sys.executable)
+        else:
+            return os.path.dirname(os.path.abspath(__file__))
+
     else:
-        return os.path.dirname(os.path.abspath(__file__))
+        if getattr(sys, 'frozen', False):
+            return os.path.dirname(sys.executable)
+        
+        base = os.path.dirname(os.path.abspath(__file__))
+        return os.path.abspath(os.path.join(base, f"../../../{exe_name}/dist/{exe_name}/"))
 
 
 def _task_runner(exec_cmd, timeout_sec):
