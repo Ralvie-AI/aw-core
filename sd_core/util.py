@@ -306,3 +306,10 @@ def remove_more_page_suffix(text):
         return words[0].strip()
     else:
         return text
+
+def get_running_path(exe_name):
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+
+    base = os.path.dirname(os.path.abspath(__file__))
+    return os.path.abspath(os.path.join(base, f"../../{exe_name}/dist/{exe_name}/"))
