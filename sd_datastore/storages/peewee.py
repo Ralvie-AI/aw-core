@@ -1684,7 +1684,35 @@ class PeeweeStorage(AbstractStorage):
                 f"Routine cleanup: deleted {deleted_count} events older than {months} months."
             )
 
-        return deleted_count       
+        return deleted_count
+
+    def delete_screenshot_event_ids(self):
+        query = (
+                ScreenShotModel.select(ScreenShotModel.event_id)
+                .where(
+                      (ScreenShotModel.is_event_screenshot == 1)
+                )
+            )
+        event_ids = [row.event_id for row in query]
+        # logger.info(f"event_ids {event_ids} event_ids")
+        if event_ids:
+            eligible_event_ids = (
+                EventModel
+                .select(EventModel.id)
+                .where(
+                    (EventModel.id << event_ids) &
+                    (EventModel.server_sync_status << [1, 2])
+                )
+            )
+
+            deleted_count = (
+                ScreenShotModel
+                .delete()
+                .where(ScreenShotModel.event_id << eligible_event_ids)
+                .execute()
+            )
+
+            logger.info(f"Deleted {deleted_count} screenshot models")
 
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",

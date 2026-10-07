@@ -362,3 +362,7 @@ class AbstractStorage(metaclass=ABCMeta):
             self, months: int = 6, batch_size: int = 1000
         ) -> int:
         raise
+
+    @abstractmethod
+    def delete_screenshot_event_ids(self):
+        raise

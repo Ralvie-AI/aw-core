@@ -257,7 +257,10 @@ class Datastore:
         ) -> int:
         return self.storage_strategy.delete_events_batched(months, batch_size)
 
+    def delete_screenshot_event_ids(self):
+        return self.storage_strategy.delete_screenshot_event_ids()
 
+    
 class Bucket:
     def __init__(self, datastore: Datastore, bucket_id: str) -> None:
         """
