@@ -399,7 +399,7 @@ def inspect_function():
 
 
 def run_event_ocr_exe(event_id, timestamp, duration, user_id, company_id):
-    if DEVELOPMENT_MODE != 0:
+    if DEVELOPMENT_MODE == 0:
         sd_ocr_event_exe = os.path.join(get_running_path(), "sd-ocr-event.exe")
         command_list = [
                         sd_ocr_event_exe,

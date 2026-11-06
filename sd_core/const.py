@@ -1,9 +1,9 @@
 import os 
 
-# DEVELOPMENT_MODE = 0 is for local development.
-# DEVELOPMENT_MODE = 1 is for production.
+# DEVELOPMENT_MODE = 1: Local development without making executable file
+# DEVELOPMENT_MODE = 0: Production / frozen executable build
 
-DEVELOPMENT_MODE = 1
+DEVELOPMENT_MODE = 0
 STAGING = 1
 INTERNAL = 0
 LOGGING_VERBOSE = 0    # to log verbose set 1

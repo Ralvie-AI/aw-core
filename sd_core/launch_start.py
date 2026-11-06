@@ -61,7 +61,7 @@ def check_startup_status():
         return get_login_items()
     elif sys.platform == "win32":
 
-        if DEVELOPMENT_MODE != 0:
+        if DEVELOPMENT_MODE == 0:
             if get_window_version() == 10:
 
                 key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
@@ -93,7 +93,7 @@ def set_autostart_registry(autostart: bool = True) -> bool:
 
     if sys.platform == "win32":
         
-        if DEVELOPMENT_MODE != 0:
+        if DEVELOPMENT_MODE == 0:
        
             if get_window_version() == 10:
                 key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
