@@ -1714,6 +1714,21 @@ class PeeweeStorage(AbstractStorage):
 
             logger.info(f"Deleted {deleted_count} screenshot models")
 
+    def get_last_event_timestamp(self):
+        event = (
+            EventModel
+            .select(EventModel.timestamp)
+            .where(EventModel.server_sync_status.in_([1, 2]))
+            .order_by(EventModel.id.desc())
+            .first()
+        )
+        if event:
+            timestamp = event.timestamp
+            return timestamp
+        
+        return None
+        
+
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",
     #                                                     defaults={'value': datetime.now().date()})
@@ -1726,6 +1741,6 @@ class PeeweeStorage(AbstractStorage):
     #             settings.save()  # Save the changes to the database
     #         else:
     #             logger.info("Date has been changed")
-    #
+    
     # def retrieve_date(self):
     #     return datetime.strptime(SettingsModel.get(SettingsModel.code == "System Date").value, "%Y-%m-%d").date()

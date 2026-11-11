@@ -272,7 +272,7 @@ class AbstractStorage(metaclass=ABCMeta):
     def retrieve_application_names(self):
         raise NotImplementedError
 
-    @abstractmethod
+    
     def update_application_details(self,update_detail):
         raise NotImplementedError
 
@@ -280,11 +280,11 @@ class AbstractStorage(metaclass=ABCMeta):
     def delete_application_details(self,application_name):
         raise NotImplementedError
 
-    @abstractmethod
+    
     def save_date(self):
         raise NotImplementedError
 
-    @abstractmethod
+    
     def retrieve_date(self) -> datetime:
         raise NotImplementedError
 
@@ -350,26 +350,31 @@ class AbstractStorage(metaclass=ABCMeta):
 
     @abstractmethod
     def save_event_screenshot(self, data) -> int:
-        raise 
+        raise NotImplementedError
 
     @abstractmethod
     def get_event_ocr_text(self, event_ids):
-        raise
+        raise NotImplementedError
 
     @abstractmethod
     def delete_events_screenshot(self, screenshot_ids):
-        raise
+        raise NotImplementedError
 
     @abstractmethod
     def get_latest_timestamp_event(self):
-        raise
+        raise NotImplementedError
 
     @abstractmethod
     def delete_events_batched(
             self, months: int = 6, batch_size: int = 1000
         ) -> int:
-        raise
+        raise NotImplementedError
 
     @abstractmethod
     def delete_screenshot_event_ids(self):
-        raise
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_last_event_timestamp(self):
+        raise NotImplementedError
+        
