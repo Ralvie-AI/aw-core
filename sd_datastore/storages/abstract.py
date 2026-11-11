@@ -264,20 +264,27 @@ class AbstractStorage(metaclass=ABCMeta):
     def retrieve_all_settings(self) -> dict:
         raise NotImplementedError
 
+    @abstractmethod
     def retrieve_application_details(self) -> dict:
         raise NotImplementedError
 
+    @abstractmethod
     def retrieve_application_names(self):
         raise NotImplementedError
 
+    @abstractmethod
     def update_application_details(self,update_detail):
         raise NotImplementedError
+
+    @abstractmethod
     def delete_application_details(self,application_name):
         raise NotImplementedError
 
+    @abstractmethod
     def save_date(self):
         raise NotImplementedError
 
+    @abstractmethod
     def retrieve_date(self) -> datetime:
         raise NotImplementedError
 
