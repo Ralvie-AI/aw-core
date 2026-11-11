@@ -36,7 +36,7 @@ from sd_core.util import (decrypt_uuid, get_domain, load_key, remove_more_page_s
 from sd_main.manager import Manager
 
 from sd_datastore.storages.abstract import AbstractStorage
-from sd_core.const import EVENT_CLEAR_TIME
+from sd_core.const import EVENT_CLEAR_TIME, EVENT_LIMITS_CLEAR
 
 logging.basicConfig(encoding='utf-8')
 
@@ -692,8 +692,6 @@ class PeeweeStorage(AbstractStorage):
             db_cache.delete(settings_cache_key)
             db_cache.store(settings_cache_key, self.retrieve_all_settings())
 
-            #del event that over that target days
-            self.delete_event_interval()
             return True
 
 
@@ -1704,9 +1702,19 @@ class PeeweeStorage(AbstractStorage):
         target_date = (current_dt - timedelta(days=EVENT_CLEAR_TIME)).date()
         time_format = "%Y-%m-%d"
 
-        logger.info(f'del event for {EVENT_CLEAR_TIME} days, event before {target_date.strftime(time_format)} will deleted')
+        count = EventModel.select().where(EventModel.timestamp < target_date.strftime(time_format)).count()
 
-        EventModel.delete().where(EventModel.timestamp < target_date.strftime(time_format)).execute()
+        if count == 0:
+            return
+        elif count <= 100000:
+            logger.info(f'del event for {EVENT_CLEAR_TIME} days, event before {target_date.strftime(time_format)} will deleted')
+            EventModel.delete().where(EventModel.timestamp < target_date.strftime(time_format)).execute()
+        else:
+            logger.info(f'del event for {EVENT_CLEAR_TIME} days, event before {target_date.strftime(time_format)} will deleted')
+            query = EventModel.select().where(EventModel.timestamp < target_date.strftime(time_format)).limit(EVENT_LIMITS_CLEAR)
+            event_ids = [ids.id for ids in query]
+            EventModel.delete().where(EventModel.id.in_(event_ids)).execute()
+            logger.info(f'Remaining events to delete: {count-EVENT_LIMITS_CLEAR} (older than {EVENT_CLEAR_TIME} days).')
 
     # def save_date(self):
     #     settings, created = SettingsModel.get_or_create(code="System Date",

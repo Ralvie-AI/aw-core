@@ -12,7 +12,7 @@ DEVELOPMENT_MODE = 0
 STAGING = 1
 
 INTERNAL = 0
-FORCE_VERBOSE = True     # True = dev / False = producton
+FORCE_VERBOSE = False     # True = dev / False = producton
 
 CACHE_KEY = "Sundial"
 SETTINGS_CACHE_KEY = "settings_cache"
@@ -20,6 +20,7 @@ LOCAL_HOST = "http://localhost:7600/api"
 
 LOG_CLEAR_TIME = 180 #the days to clear old logs
 EVENT_CLEAR_TIME = 180 #the days to clear event
+EVENT_LIMITS_CLEAR = 5000 # Number of events to clear per batch
 
 SYNC_TIME = 600 # 10 minutes
 SCREEN_SHOT_SYNC_TIME = 60 # 1  minutes
