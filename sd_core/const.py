@@ -17,6 +17,7 @@ FORCE_VERBOSE = False     # True = dev / False = producton
 CACHE_KEY = "Sundial"
 SETTINGS_CACHE_KEY = "settings_cache"
 LOCAL_HOST = "http://localhost:7600/api"
+BASE_URL = "http://localhost:7600/"
 
 LOG_CLEAR_TIME = 180 #the days to clear old logs
 EVENT_CLEAR_TIME = 180 #the days to clear event
