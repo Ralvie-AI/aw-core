@@ -7,6 +7,9 @@ import threading
 import time
 import subprocess
 import configparser
+import hashlib
+import hmac
+import json
 from datetime import datetime, timedelta
 from typing import Tuple
 
@@ -420,6 +423,42 @@ def run_event_ocr_exe(event_id, timestamp, duration, user_id, company_id):
                     creationflags=subprocess.CREATE_NO_WINDOW
                 )
         # logger.info(f" result subprocesss => {result}")
+
+
+
+
+def b64url_encode(data: bytes) -> str:
+    """Encode bytes to unpadded URL-safe Base64 string (RFC 7515)."""
+    return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
+
+def create_ephemeral_hs256_jwt(kid: str = "ephemeral_key") -> str:
+    """Generate a valid HS256 JWT with an empty payload and a throwaway random key."""
+    # 1. Generate a 256-bit (32-byte) random secret key in memory
+    ephemeral_secret = os.urandom(32)
+
+    # 2. Define Header
+    header = {
+        "kid": kid,
+        "alg": "HS256",
+        "typ": "JWT"
+    }
+
+    # 3. Encode Header and empty JSON object `{}` ('e30')
+    encoded_header = b64url_encode(json.dumps(header, separators=(",", ":")).encode("utf-8"))
+    encoded_payload = b64url_encode(b"{}")
+
+    # 4. Sign "header.e30" with the ephemeral key
+    signing_input = f"{encoded_header}.{encoded_payload}".encode("ascii")
+    raw_signature = hmac.new(
+        key=ephemeral_secret,
+        msg=signing_input,
+        digestmod=hashlib.sha256
+    ).digest()
+
+    encoded_signature = b64url_encode(raw_signature)
+
+    # 5. Assemble the JWT (ephemeral_secret is discarded when the function exits)
+    return f"{encoded_header}.{encoded_payload}.{encoded_signature}"
 
 if __name__ == '__main__':
     from tzlocal import get_localzone
